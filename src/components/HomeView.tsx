@@ -11,7 +11,6 @@ export function HomeView() {
   const phases = useStore((s) => s.phases);
   const jobs = useStore((s) => s.jobs);
   const opportunities = useStore((s) => s.opportunities);
-  const setCreateClientModalOpen = useStore((s) => s.setCreateClientModalOpen);
   const setSelectedClientId = useStore((s) => s.setSelectedClientId);
   const deleteClient = useStore((s) => s.deleteClient);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);

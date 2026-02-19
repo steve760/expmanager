@@ -214,7 +214,7 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
   const [viewOpportunity, setViewOpportunity] = useState<Opportunity | null>(null);
   const [editOpportunity, setEditOpportunity] = useState<Opportunity | null>(null);
   const [viewJobId, setViewJobId] = useState<string | null>(null);
-  const [returnToView, setReturnToView] = useState<{ type: 'job'; id: string } | { type: 'opportunity'; id: string } | null>(null);
+  const [_returnToView, _setReturnToView] = useState<{ type: 'job'; id: string } | { type: 'opportunity'; id: string } | null>(null);
   const [search, setSearch] = useState('');
   const [filterProject, setFilterProject] = useState<string>('');
   const [filterJourney, setFilterJourney] = useState<string>('');
@@ -488,10 +488,10 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
           onClose={() => setViewJobId(null)}
           job={viewJobWithMeta}
           linkedInsights={(viewJobWithMeta.insightIds ?? [])
-            .map((id) => insights.find((i) => i.id === id))
+            .map((id: string) => insights.find((i) => i.id === id))
             .filter(Boolean)
-            .map((i) => ({ id: i!.id, title: i!.title ?? '—' }))}
-          linkedOpportunities={getLinkedOpportunities(viewJobWithMeta.id).map((o) => ({ id: o.id, name: o.name }))}
+            .map((i) => ({ id: (i as { id: string; title?: string }).id, title: (i as { id: string; title?: string }).title ?? '—' }))}
+          linkedOpportunities={getLinkedOpportunities(viewJobWithMeta.id ?? '').map((o) => ({ id: o.id, name: o.name }))}
           onOpportunityClick={(opp) => {
             setViewOpportunity(clientOpportunities.find((o) => o.id === opp.id) ?? null);
           }}

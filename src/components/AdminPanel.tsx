@@ -7,7 +7,6 @@ import {
   fetchAllProfiles,
   fetchAllOrganisationMembers,
   fetchMembersByOrganisation,
-  addOrganisationMember,
   removeOrganisationMember,
   updateProfileSuperAdmin,
   inviteUser,
@@ -152,7 +151,7 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
     setInviteSuccess(false);
     if (!inviteEmail.trim()) return;
     setInviteLoading(true);
-    const { ok, error } = await inviteUser({
+    const { error } = await inviteUser({
       email: inviteEmail.trim(),
       full_name: inviteName.trim() || undefined,
       organisation_id: inviteClientId || undefined,

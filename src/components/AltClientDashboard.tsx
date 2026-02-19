@@ -593,11 +593,11 @@ export function AltClientDashboard() {
           onClose={() => setViewJob(null)}
           job={viewJob}
           linkedInsights={(viewJob.insightIds ?? [])
-            .map((id) => insights.find((i) => i.id === id))
+            .map((id: string) => insights.find((i) => i.id === id))
             .filter(Boolean)
-            .map((i) => ({ id: i!.id, title: i!.title ?? '—' }))}
+            .map((i) => ({ id: (i as { id: string; title?: string }).id, title: (i as { id: string; title?: string }).title ?? '—' }))}
           linkedOpportunities={clientOpportunities
-            .filter((o) => (o.linkedJobIds ?? []).includes(viewJob.id))
+            .filter((o) => (o.linkedJobIds ?? []).includes(viewJob.id ?? ''))
             .map((o) => ({ id: o.id, name: o.name }))}
           onOpportunityClick={(opp) => {
             setViewOpportunity(clientOpportunities.find((o) => o.id === opp.id) ?? null);

@@ -47,7 +47,7 @@ function OpportunityReadOnlyContent({
   phaseTitle,
   linkedJobLabels = [],
   onEdit,
-  onClose,
+  onClose: _onClose,
   onLinkedJobClick,
   embedded,
 }: {

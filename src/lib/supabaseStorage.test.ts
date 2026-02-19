@@ -7,12 +7,11 @@ import type { AppState } from '@/types';
 
 // Mock supabase before importing supabaseStorage
 const rpcMock = vi.fn();
-const fromMock = vi.fn();
 
 vi.mock('@/lib/supabase', () => ({
   supabase: {
     rpc: (...args: unknown[]) => rpcMock(...args),
-    from: (table: string) => ({
+    from: (_table: string) => ({
       select: vi.fn().mockResolvedValue({ data: [] }),
       upsert: vi.fn().mockResolvedValue({ error: null }),
       delete: vi.fn().mockReturnValue({ eq: vi.fn().mockResolvedValue({ error: null }) }),
@@ -40,7 +39,26 @@ function minimalState(overrides: Partial<AppState> = {}): AppState {
     clients: [{ id: clientId, name: 'Acme', createdAt: now, updatedAt: now }],
     projects: [{ id: projectId, clientId, name: 'Project 1', createdAt: now, updatedAt: now }],
     journeys: [{ id: journeyId, projectId, name: 'Journey 1', rowOrder: [], customRows: [], createdAt: now, updatedAt: now }],
-    phases: [{ id: phaseId, journeyId, order: 0, title: 'Phase 1', description: '', createdAt: now, updatedAt: now }],
+    phases: [{
+      id: phaseId,
+      journeyId,
+      order: 0,
+      title: 'Phase 1',
+      description: '',
+      struggles: '',
+      internalStruggles: '',
+      opportunities: '',
+      frontStageActions: '',
+      backStageActions: '',
+      systems: '',
+      relatedProcesses: '',
+      channels: '',
+      jobIds: [],
+      relatedDocuments: '',
+      customRowValues: {},
+      createdAt: now,
+      updatedAt: now,
+    }],
     jobs: [
       {
         id: 'job-1',

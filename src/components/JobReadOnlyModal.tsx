@@ -9,6 +9,8 @@ export type JobPlacementDisplay = {
 };
 
 export type JobWithMeta = CustomerJobItem & {
+  id?: string;
+  insightIds?: string[];
   journeyName: string;
   phaseTitle: string;
   projectName: string;
@@ -56,7 +58,7 @@ function JobReadOnlyContent({
   job,
   onEdit,
   onDelete,
-  onClose,
+  onClose: _onClose,
   linkedOpportunities = [],
   linkedInsights = [],
   onOpportunityClick,

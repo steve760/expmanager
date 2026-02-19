@@ -531,7 +531,6 @@ export function JourneyMapView() {
   const reorderJourneyRows = useStore((s) => s.reorderJourneyRows);
   const opportunities = useStore((s) => s.opportunities);
   const jobsStore = useStore((s) => s.jobs);
-  const phasesStore = useStore((s) => s.phases);
   const insights = useStore((s) => s.insights);
   const updateOpportunity = useStore((s) => s.updateOpportunity);
   const updateJob = useStore((s) => s.updateJob);

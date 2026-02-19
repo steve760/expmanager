@@ -15,7 +15,7 @@ import {
 } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { useStore } from '@/store';
-import type { Insight, Opportunity, PriorityLevel } from '@/types';
+import type { Insight, PriorityLevel } from '@/types';
 import { CreateInsightModal } from '@/components/modals/CreateInsightModal';
 import { JobReadOnlyModal, type JobWithMeta } from '@/components/JobReadOnlyModal';
 import { OpportunityReadOnlyModal } from '@/components/OpportunityReadOnlyModal';
@@ -481,10 +481,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
           onClose={handleCloseView}
           job={viewJobWithMeta}
           linkedInsights={(viewJobWithMeta.insightIds ?? [])
-            .map((id) => insights.find((i) => i.id === id))
+            .map((id: string) => insights.find((i) => i.id === id))
             .filter(Boolean)
-            .map((i) => ({ id: i!.id, title: i!.title ?? '—' }))}
-          linkedOpportunities={getLinkedOpportunities(viewJobWithMeta.id).map((o) => ({ id: o.id, name: o.name }))}
+            .map((i) => ({ id: (i as { id: string; title?: string }).id, title: (i as { id: string; title?: string }).title ?? '—' }))}
+          linkedOpportunities={getLinkedOpportunities(viewJobWithMeta.id ?? '').map((o) => ({ id: o.id, name: o.name }))}
           onInsightClick={(ins) => setViewStack((prev) => [...prev, { type: 'insight', id: ins.id }])}
           onOpportunityClick={(opp) => setViewStack((prev) => [...prev, { type: 'opportunity', id: opp.id }])}
           onBack={viewStack.length > 1 ? handleBack : undefined}
