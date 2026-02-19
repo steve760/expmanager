@@ -163,7 +163,7 @@ export function ClientPageView() {
                       <button
                         type="button"
                         onClick={() => setCreateProjectModalOpen(true)}
-                        className="w-full rounded-xl bg-stone-800 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-700 dark:bg-stone-200 dark:text-stone-900 dark:hover:bg-stone-300"
+                        className="w-full rounded-xl bg-[#6D28D9] px-4 py-3 font-medium text-white transition-colors hover:bg-[#5B21B6] dark:bg-violet-600 dark:hover:bg-violet-700"
                       >
                         New Meta-Journey
                       </button>

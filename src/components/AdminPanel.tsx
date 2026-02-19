@@ -37,7 +37,7 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
   const [inviteError, setInviteError] = useState<string | null>(null);
   const [inviteSuccess, setInviteSuccess] = useState(false);
 
-  const isSuperAdmin = Boolean(profile?.is_super_admin);
+  const isSuperAdmin = Boolean(profile?.is_super_admin ?? (profile as { isSuperAdmin?: boolean } | null)?.isSuperAdmin);
   const adminOrgIds = (organisationMembers ?? []).filter((m) => m.role === 'admin').map((m) => m.organisation_id);
   const canAccessAdmin = isSuperAdmin || adminOrgIds.length > 0;
 
@@ -116,6 +116,9 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
           </h2>
           <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
             This area is for administrators. If you need access, please ask your organisation admin or the person who manages this workspace.
+          </p>
+          <p className="mb-4 text-xs text-stone-500 dark:text-stone-400">
+            For super admin: set <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">profiles.is_super_admin = true</code> in Supabase. For client admin: add a row in <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">organisation_members</code> with <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">role = &apos;admin&apos;</code>.
           </p>
           <button
             type="button"

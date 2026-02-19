@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/store';
-import { isSupabaseConfigured } from '@/lib/supabase';
+import { isSupabaseConfigured, getSupabaseProjectRef } from '@/lib/supabase';
 
 export function SettingsDropdown() {
   const darkMode = useStore((s) => s.darkMode);
@@ -68,6 +68,13 @@ export function SettingsDropdown() {
           >
             Log out
           </button>
+          <div className="border-t border-stone-200 px-4 py-2.5 text-xs text-stone-500 dark:border-stone-600 dark:text-stone-400">
+            {isSupabaseConfigured() ? (
+              <>Data: Supabase <span className="font-mono" title="Project ref from VITE_SUPABASE_URL">{getSupabaseProjectRef() ?? '…'}</span></>
+            ) : (
+              <>Data: this device only (set VITE_SUPABASE_* in Vercel & redeploy)</>
+            )}
+          </div>
         </div>
       )}
     </div>

@@ -41,7 +41,7 @@ Replace `YOUR_USERNAME` and `YOUR_REPO_NAME` with your GitHub username and repo 
    - `VITE_SUPABASE_URL` = your Supabase project URL  
    - `VITE_SUPABASE_ANON_KEY` = your Supabase anon key  
    (Use the same values as in your local `.env`.)  
-   **Required for Supabase in production:** without these, the app uses browser localStorage only and data will not sync to Supabase. After adding or changing them, trigger a **new deployment** so the build picks them up.
+   **Required for Supabase in production:** without these, the app uses browser localStorage only and data will not sync to Supabase. In Vercel, set the variables for **Production** (and optionally Preview). After adding or changing them, trigger a **new deployment** so the build picks them up. To verify which connection the app is using: open the app → click the **settings (gear)** icon → at the bottom you’ll see either **Data: Supabase** plus a project ref (matches your Supabase URL) or **Data: this device only** if the env vars were not in the build.
 5. Click **Deploy**. You’ll get a URL like `your-project.vercel.app`.
 
 **Supabase read/write in production:** The app loads state from Supabase on sign-in and saves after each change. If you see a red **Load failed** or **Save failed** banner in production, check: (1) `VITE_SUPABASE_URL` and `VITE_SUPABASE_ANON_KEY` are set in Vercel and a new deploy was run; (2) your Supabase project has the RPCs used for writes (`upsert_clients`, `upsert_projects`, etc.) and RLS policies that allow the authenticated user to SELECT from `clients`, `projects`, `journeys`, `phases`, `jobs`, `insights`, `opportunities`, `cell_comments`. Use **Retry load** to try loading again after fixing issues.

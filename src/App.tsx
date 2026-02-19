@@ -70,9 +70,18 @@ function App() {
     );
   }
 
+  const supabaseConfigured = isSupabaseConfigured();
+
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-subtle dark:bg-gradient-subtle-dark">
       <main className="flex flex-1 flex-col overflow-hidden">
+        {!supabaseConfigured && (
+          <div className="flex items-center justify-between gap-3 bg-amber-100 px-4 py-2 text-sm text-amber-900 dark:bg-amber-900/40 dark:text-amber-200">
+            <span className="min-w-0 flex-1">
+              Data is stored on this device only. To sync with Supabase, set <code className="rounded bg-amber-200/80 px-1 dark:bg-amber-800/80">VITE_SUPABASE_URL</code> and <code className="rounded bg-amber-200/80 px-1 dark:bg-amber-800/80">VITE_SUPABASE_ANON_KEY</code> in your environment (e.g. Vercel) and redeploy.
+            </span>
+          </div>
+        )}
         {(saveError || loadError) && (
           <div className="flex flex-wrap items-center justify-between gap-3 bg-red-100 px-4 py-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
             <span className="min-w-0 flex-1 truncate" title={saveError || loadError || ''}>
