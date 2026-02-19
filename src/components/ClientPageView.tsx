@@ -149,9 +149,24 @@ export function ClientPageView() {
                 {clientProjects.length === 0 ? (
                   <div className="flex min-h-full flex-col items-center justify-center">
                     <div className="mx-auto max-w-sm rounded-2xl bg-white p-8 text-center shadow-sm dark:bg-stone-800">
-                      <p className="text-sm text-stone-600 dark:text-stone-400">
-                        No Meta-Journeys yet. Add one to organise your journeys.
+                      <div className="mb-4 flex justify-center">
+                        <span className="flex h-12 w-12 items-center justify-center rounded-full bg-stone-200 text-2xl dark:bg-stone-600" aria-hidden>
+                          🗺️
+                        </span>
+                      </div>
+                      <h2 className="mb-2 text-lg font-semibold text-stone-900 dark:text-stone-100">
+                        No Meta-Journeys yet
+                      </h2>
+                      <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
+                        Add one to organise your journeys and start mapping.
                       </p>
+                      <button
+                        type="button"
+                        onClick={() => setCreateProjectModalOpen(true)}
+                        className="w-full rounded-xl bg-stone-800 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-700 dark:bg-stone-200 dark:text-stone-900 dark:hover:bg-stone-300"
+                      >
+                        New Meta-Journey
+                      </button>
                     </div>
                   </div>
                 ) : (
