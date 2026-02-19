@@ -9,7 +9,7 @@ Follow these steps to put the app online with GitHub and your custom domain **ex
 If the project is not yet a git repo:
 
 ```bash
-cd ~/journey-mapper
+cd ~/expmanager
 git init
 git add .
 git commit -m "Initial commit"
