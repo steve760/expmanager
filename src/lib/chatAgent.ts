@@ -1,10 +1,98 @@
 /**
- * Simple agent that answers questions using the journey mapper store data.
- * No external API; responses are derived from clients, projects, journeys, and phases.
+ * Chat agent: rule-based answers from journey data, with optional LLM when API key is set.
+ * Set VITE_OPENAI_API_KEY (and optionally VITE_OPENAI_BASE_URL) to use an LLM.
  */
 
 import { parseOpportunities, parseStruggles } from '@/lib/utils';
 import type { Client, Project, Journey, Phase } from '@/types';
+
+const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
+const OPENAI_BASE_URL = (import.meta.env.VITE_OPENAI_BASE_URL as string | undefined) || 'https://api.openai.com/v1';
+
+/** Build a compact context string for the LLM system prompt. */
+function buildContextForLLM(ctx: ChatContext): string {
+  const lines: string[] = [
+    'You are a helpful assistant for a journey mapping app (ExpManager). The user can ask about their clients, projects (meta-journeys), journeys, phases, jobs, opportunities, and struggles. Answer only from the data below; if something is not in the data, say so.',
+    '',
+    'Current selection:',
+    `- Client: ${ctx.selectedClientId ? ctx.clients.find((c) => c.id === ctx.selectedClientId)?.name ?? '—' : 'none'}`,
+    `- Project (meta-journey): ${ctx.selectedProjectId ? ctx.projects.find((p) => p.id === ctx.selectedProjectId)?.name ?? '—' : 'none'}`,
+    `- Journey: ${ctx.selectedJourneyId ? ctx.journeys.find((j) => j.id === ctx.selectedJourneyId)?.name ?? '—' : 'none'}`,
+    '',
+    'Data (JSON):',
+  ];
+  const data = {
+    clients: ctx.clients.map((c) => ({ id: c.id, name: c.name, description: c.description })),
+    projects: ctx.projects.map((p) => ({ id: p.id, clientId: p.clientId, name: p.name, description: p.description })),
+    journeys: ctx.journeys.map((j) => ({ id: j.id, projectId: j.projectId, name: j.name, description: j.description })),
+    phases: ctx.phases.map((p) => ({
+      id: p.id,
+      journeyId: p.journeyId,
+      order: p.order,
+      title: p.title,
+      description: (p.description ?? '').slice(0, 200),
+      struggles: p.struggles,
+      internalStruggles: p.internalStruggles,
+      opportunities: p.opportunities,
+      frontStageActions: p.frontStageActions,
+      backStageActions: p.backStageActions,
+      jobIds: p.jobIds,
+    })),
+    jobs: ctx.jobs.map((j) => ({ id: j.id, name: j.name, tag: j.tag })),
+  };
+  lines.push(JSON.stringify(data, null, 0).slice(0, 12000));
+  return lines.join('\n');
+}
+
+/** Call OpenAI-compatible chat API. Returns response text or throws. */
+export async function getLLMResponse(
+  message: string,
+  ctx: ChatContext,
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
+): Promise<string> {
+  if (!OPENAI_API_KEY?.trim()) {
+    throw new Error('VITE_OPENAI_API_KEY is not set. Add it in .env to use the LLM.');
+  }
+  const systemContent = buildContextForLLM(ctx);
+  const messages: { role: string; content: string }[] = [
+    { role: 'system', content: systemContent },
+    ...conversationHistory.slice(-20).map((m) => ({ role: m.role, content: m.content })),
+    { role: 'user', content: message },
+  ];
+  const url = `${OPENAI_BASE_URL.replace(/\/$/, '')}/chat/completions`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${OPENAI_API_KEY}`,
+    },
+    body: JSON.stringify({
+      model: (import.meta.env.VITE_OPENAI_MODEL as string) || 'gpt-4o-mini',
+      messages,
+      max_tokens: 1024,
+    }),
+  });
+  if (!res.ok) {
+    const err = await res.text();
+    throw new Error(`LLM API error ${res.status}: ${err.slice(0, 200)}`);
+  }
+  const json = (await res.json()) as { choices?: { message?: { content?: string } }[] };
+  const content = json.choices?.[0]?.message?.content?.trim();
+  if (!content) throw new Error('Empty response from LLM');
+  return content;
+}
+
+/** Get response: use LLM if API key is set, else rule-based. */
+export async function getAgentResponseAsync(
+  message: string,
+  ctx: ChatContext,
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
+): Promise<string> {
+  if (OPENAI_API_KEY?.trim()) {
+    return getLLMResponse(message, ctx, conversationHistory);
+  }
+  return Promise.resolve(getAgentResponse(message, ctx));
+}
 
 export interface JobForChat {
   id: string;

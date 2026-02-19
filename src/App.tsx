@@ -32,6 +32,9 @@ function App() {
   const darkMode = useStore((s) => s.darkMode);
   const saveError = useStore((s) => s.saveError);
   const setSaveError = useStore((s) => s.setSaveError);
+  const loadError = useStore((s) => s.loadError);
+  const setLoadError = useStore((s) => s.setLoadError);
+  const loadState = useStore((s) => s.loadState);
   const [chatOpen, setChatOpen] = useState(false);
 
   useEffect(() => {
@@ -70,19 +73,32 @@ function App() {
   return (
     <div className="flex h-screen overflow-hidden bg-gradient-subtle dark:bg-gradient-subtle-dark">
       <main className="flex flex-1 flex-col overflow-hidden">
-        {saveError && (
-          <div className="flex items-center justify-between gap-3 bg-red-100 px-4 py-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
-            <span className="min-w-0 flex-1 truncate" title={saveError}>
-              Save failed: {saveError}
+        {(saveError || loadError) && (
+          <div className="flex flex-wrap items-center justify-between gap-3 bg-red-100 px-4 py-2 text-sm text-red-800 dark:bg-red-900/40 dark:text-red-200">
+            <span className="min-w-0 flex-1 truncate" title={saveError || loadError || ''}>
+              {saveError && <>Save failed: {saveError}</>}
+              {saveError && loadError && ' · '}
+              {loadError && <>Load failed: {loadError} (showing local data). Set VITE_SUPABASE_URL and VITE_SUPABASE_ANON_KEY in Vercel if this is production.</>}
             </span>
-            <button
-              type="button"
-              onClick={() => setSaveError(null)}
-              className="shrink-0 rounded px-2 py-1 hover:bg-red-200 dark:hover:bg-red-800"
-              aria-label="Dismiss"
-            >
-              Dismiss
-            </button>
+            <span className="flex shrink-0 gap-2">
+              {loadError && (
+                <button
+                  type="button"
+                  onClick={() => { setLoadError(null); loadState(); }}
+                  className="rounded px-2 py-1 hover:bg-red-200 dark:hover:bg-red-800"
+                >
+                  Retry load
+                </button>
+              )}
+              <button
+                type="button"
+                onClick={() => { setSaveError(null); setLoadError(null); }}
+                className="rounded px-2 py-1 hover:bg-red-200 dark:hover:bg-red-800"
+                aria-label="Dismiss"
+              >
+                Dismiss
+              </button>
+            </span>
           </div>
         )}
         {!showClientPage && (

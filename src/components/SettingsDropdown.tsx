@@ -8,7 +8,8 @@ export function SettingsDropdown() {
   const signOut = useStore((s) => s.signOut);
   const setShowAdminPanel = useStore((s) => s.setShowAdminPanel);
   const profile = useStore((s) => s.profile);
-  const showAdminLink = isSupabaseConfigured() || Boolean(profile?.is_super_admin);
+  const isSignedIn = useStore((s) => s.isSignedIn);
+  const showAdminLink = isSupabaseConfigured() || Boolean(profile) || isSignedIn;
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

@@ -45,6 +45,8 @@ type UIState = {
   showAdminPanel: boolean;
   /** Last Supabase save error (e.g. delete failed); clear when save succeeds or user dismisses */
   saveError: string | null;
+  /** Last Supabase load error; clear when load succeeds or user dismisses */
+  loadError: string | null;
 };
 
 type Actions = {
@@ -111,6 +113,7 @@ type Actions = {
   setOrganisationMembers: (m: OrganisationMember[]) => void;
   setShowAdminPanel: (v: boolean) => void;
   setSaveError: (msg: string | null) => void;
+  setLoadError: (msg: string | null) => void;
   setOpportunitiesClientId: (id: string | null) => void;
   setJobsClientId: (id: string | null) => void;
   setAltDashboardClientId: (id: string | null) => void;
@@ -170,9 +173,11 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   organisationMembers: [] as OrganisationMember[],
   showAdminPanel: false,
   saveError: null as string | null,
+  loadError: null as string | null,
 
   setShowAdminPanel: (v) => set({ showAdminPanel: v }),
   setSaveError: (msg: string | null) => set({ saveError: msg }),
+  setLoadError: (msg: string | null) => set({ loadError: msg }),
 
   initAuth: async () => {
     if (isSupabaseConfigured()) {
@@ -238,6 +243,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   setOrganisationMembers: (m) => set({ organisationMembers: m }),
 
   loadState: async () => {
+    get().setLoadError(null);
     try {
       const savedDark = localStorage.getItem('expmanager-dark');
       if (savedDark !== null) set({ darkMode: savedDark === 'true' });
@@ -247,7 +253,9 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
       try {
         state = await supabaseGetState();
       } catch (err) {
+        const message = err instanceof Error ? err.message : String(err);
         console.warn('Supabase load failed, falling back to localStorage', err);
+        get().setLoadError(message);
       }
     }
     if (!state) {

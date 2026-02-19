@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/store';
-import { getAgentResponse } from '@/lib/chatAgent';
+import { getAgentResponseAsync } from '@/lib/chatAgent';
 
 interface Message {
   id: string;
@@ -33,7 +33,7 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     listRef.current?.scrollTo({ top: listRef.current.scrollHeight, behavior: 'smooth' });
   }, [messages]);
 
-  const handleSend = () => {
+  const handleSend = async () => {
     const text = input.trim();
     if (!text || isLoading) return;
     setInput('');
@@ -41,22 +41,35 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     setMessages((prev) => [...prev, userMsg]);
     setIsLoading(true);
 
-    setTimeout(() => {
-      const ctx = {
-        clients,
-        projects,
-        journeys,
-        phases,
-        jobs,
-        selectedClientId,
-        selectedProjectId,
-        selectedJourneyId,
-      };
-      const response = getAgentResponse(text, ctx);
+    const ctx = {
+      clients,
+      projects,
+      journeys,
+      phases,
+      jobs,
+      selectedClientId,
+      selectedProjectId,
+      selectedJourneyId,
+    };
+    const history = messages
+      .filter((m) => m.role === 'user' || m.role === 'assistant')
+      .map((m) => ({ role: m.role, content: m.content }));
+
+    try {
+      const response = await getAgentResponseAsync(text, ctx, history);
       const assistantMsg: Message = { id: `assistant-${Date.now()}`, role: 'assistant', content: response };
       setMessages((prev) => [...prev, assistantMsg]);
+    } catch (err) {
+      const message = err instanceof Error ? err.message : 'Something went wrong.';
+      const assistantMsg: Message = {
+        id: `assistant-${Date.now()}`,
+        role: 'assistant',
+        content: `**Error:** ${message}\n\nIf you intended to use an LLM, set \`VITE_OPENAI_API_KEY\` in your \`.env\` and restart the dev server.`,
+      };
+      setMessages((prev) => [...prev, assistantMsg]);
+    } finally {
       setIsLoading(false);
-    }, 300);
+    }
   };
 
   if (!isOpen) return null;
