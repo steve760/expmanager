@@ -90,10 +90,10 @@ function App() {
             <div className="flex min-w-0 flex-1 items-center gap-4">
               <button
                 onClick={goHome}
-                className="shrink-0 font-brand text-2xl font-bold leading-none tracking-tight text-white transition-opacity hover:opacity-90"
+                className="shrink-0 transition-opacity hover:opacity-90"
                 title="Home"
               >
-                jrny
+                <img src="/XPM.svg" alt="ExpManager" className="h-8 w-auto brightness-0 invert" />
               </button>
               {!showNoClient && (
                 <>

@@ -113,10 +113,10 @@ export function Sidebar() {
             {!collapsed && (
               <div className="flex flex-1 items-center gap-3">
                 <img
-                  src="/purple-shirt-logo.png"
-                  alt="Purple Shirt"
-                  className="h-8 object-contain"
-                  style={{ maxWidth: '80px' }}
+                  src="/XPM.svg"
+                  alt="ExpManager"
+                  className="h-8 w-auto object-contain"
+                  style={{ maxWidth: '120px' }}
                 />
                 <h1 className="truncate text-lg font-semibold text-stone-900 dark:text-stone-100">ExpManager</h1>
               </div>

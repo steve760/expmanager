@@ -63,10 +63,10 @@ export function ClientPageView() {
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <button
             onClick={goHome}
-            className="shrink-0 font-brand text-2xl font-bold leading-none tracking-tight text-white transition-opacity hover:opacity-90"
+            className="shrink-0 transition-opacity hover:opacity-90"
             title="Home"
           >
-            jrny
+            <img src="/XPM.svg" alt="ExpManager" className="h-8 w-auto brightness-0 invert" />
           </button>
           <span className="shrink-0 text-white/60">|</span>
           <h2 className="truncate text-lg font-bold tracking-tight text-white">{client.name}</h2>
@@ -170,7 +170,7 @@ export function ClientPageView() {
                     </div>
                   </div>
                 ) : (
-                  <div className="mx-auto flex max-w-2xl flex-col gap-6">
+                  <div className="flex max-w-2xl flex-col gap-6">
                     {clientProjects.map((project) => {
                       const projJourneys = journeys.filter((j) => j.projectId === project.id);
                       const journeyHealths = projJourneys

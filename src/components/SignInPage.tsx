@@ -69,9 +69,7 @@ export function SignInPage() {
         <div className="w-full max-w-sm rounded-2xl border border-stone-700/50 bg-stone-900/60 p-8 shadow-2xl backdrop-blur-xl">
           {/* Logo */}
           <div className="mb-10 flex justify-center">
-            <span className="font-brand text-3xl font-bold tracking-tight text-white">
-              jrny
-            </span>
+            <img src="/XPM.svg" alt="ExpManager" className="h-10 w-auto brightness-0 invert" />
           </div>
 
           <form

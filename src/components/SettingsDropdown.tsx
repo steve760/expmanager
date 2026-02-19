@@ -7,7 +7,8 @@ export function SettingsDropdown() {
   const setDarkMode = useStore((s) => s.setDarkMode);
   const signOut = useStore((s) => s.signOut);
   const setShowAdminPanel = useStore((s) => s.setShowAdminPanel);
-  const showAdminLink = isSupabaseConfigured();
+  const profile = useStore((s) => s.profile);
+  const showAdminLink = isSupabaseConfigured() || Boolean(profile?.is_super_admin);
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 

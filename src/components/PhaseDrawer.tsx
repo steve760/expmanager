@@ -48,7 +48,11 @@ export function PhaseDrawer() {
 
   const syncFromPhase = useCallback(() => {
     if (phase) {
-      setLocal({ ...phase });
+      const defaults = createEmptyPhase();
+      const merged = { ...defaults, ...Object.fromEntries(
+        (Object.entries(phase) as [keyof Phase, unknown][]).filter(([, v]) => v !== undefined)
+      ) } as Phase;
+      setLocal(merged);
       setSaved(true);
     }
   }, [phase?.id, phase?.updatedAt]);
@@ -105,7 +109,7 @@ export function PhaseDrawer() {
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Title</label>
                 <input
                   type="text"
-                  value={local.title}
+                  value={local.title ?? ''}
                   onChange={(e) => scheduleSave({ title: e.target.value })}
                   className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
                 />
@@ -113,7 +117,7 @@ export function PhaseDrawer() {
               <div>
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Description</label>
                 <textarea
-                  value={local.description}
+                  value={local.description ?? ''}
                   onChange={(e) => scheduleSave({ description: e.target.value })}
                   rows={3}
                   className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
@@ -223,7 +227,7 @@ export function PhaseDrawer() {
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Front stage actions</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
-                  value={local.frontStageActions}
+                  value={local.frontStageActions ?? ''}
                   onChange={(e) => scheduleSave({ frontStageActions: e.target.value })}
                   rows={3}
                   placeholder="e.g. Visit website, Call support (one per line)"
@@ -234,8 +238,8 @@ export function PhaseDrawer() {
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Struggles</label>
                 <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Add struggles with text and priority (High, Medium, Low)</p>
                 <div className="space-y-3">
-                  {parseStruggles(local.struggles).map((item, index) => {
-                    const items = parseStruggles(local.struggles);
+                  {parseStruggles(local.struggles ?? '').map((item, index) => {
+                    const items = parseStruggles(local.struggles ?? '');
                     const updateItems = (next: StruggleItem[]) =>
                       scheduleSave({ struggles: serializeStruggles(next) });
                     return (
@@ -285,7 +289,7 @@ className="rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500 dark
                   <button
                     type="button"
                     onClick={() => {
-                      const items = parseStruggles(local.struggles);
+                      const items = parseStruggles(local.struggles ?? '');
                       scheduleSave({
                         struggles: serializeStruggles([...items, { text: '', tag: 'Medium' }]),
                       });
@@ -371,7 +375,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Back stage actions</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
-                  value={local.backStageActions}
+                  value={local.backStageActions ?? ''}
                   onChange={(e) => scheduleSave({ backStageActions: e.target.value })}
                   rows={2}
                   placeholder="e.g. Update record, Notify team"
@@ -393,7 +397,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
                 <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Related processes</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
-                  value={local.relatedProcesses}
+                  value={local.relatedProcesses ?? ''}
                   onChange={(e) => scheduleSave({ relatedProcesses: e.target.value })}
                   rows={2}
                   placeholder="e.g. Handover, Approval workflow"
@@ -406,8 +410,21 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
             <h3 className={SECTION_HEADING_CLASS}>Opportunities</h3>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Opportunities for this phase. Shown in the Opportunities row in the journey table.</p>
-            <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Opportunities</label>
+            <div className="space-y-5">
+              <div>
+                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Opportunities (notes)</label>
+                <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
+                <textarea
+                  value={local.opportunities ?? ''}
+                  onChange={(e) => scheduleSave({ opportunities: e.target.value })}
+                  rows={2}
+                  placeholder="e.g. Improve wait time, Add self-service option"
+                  className="w-full rounded-xl border border-stone-300 px-4 py-3 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100 dark:placeholder-stone-500"
+                />
+              </div>
+            </div>
+            <div className="mt-5">
+              <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Opportunity items</label>
               <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Add opportunities with name and priority (High, Medium, or Low). Click an opportunity in the table to add details.</p>
               <div className="space-y-3">
                 {opportunities.map((opp) => (
