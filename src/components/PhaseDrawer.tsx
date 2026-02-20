@@ -159,7 +159,6 @@ export function PhaseDrawer() {
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
             <h3 className={SECTION_HEADING_CLASS}>Customer</h3>
-            <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Customer jobs & goals assigned to this phase. Matches the Customer jobs row in the journey table.</p>
             <div>
               <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Customer jobs & goals</label>
               <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Select jobs from the Jobs tab to assign to this phase.</p>
