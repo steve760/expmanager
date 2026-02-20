@@ -693,17 +693,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
 
           if (entry.mode === 'edit') {
             if (entry.type === 'job') {
-              const jobFormId = `edit-job-form-${entry.id}`;
-              return (
-                <div className="flex gap-3">
-                  <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
-                    Cancel
-                  </button>
-                  <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
-                    Save
-                  </button>
-                </div>
-              );
+              return null;
             }
             if (entry.type === 'opportunity') {
               return (

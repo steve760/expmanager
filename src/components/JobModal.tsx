@@ -215,6 +215,23 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave
             placeholder="Describe solutions and workarounds"
           />
         </div>
+        {embedded && hideFooter && (
+          <div className="mt-4 flex gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
+            <button
+              type="button"
+              onClick={onClose}
+              className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+            >
+              Cancel
+            </button>
+            <button
+              type="submit"
+              className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
+            >
+              Save
+            </button>
+          </div>
+        )}
       </form>
   );
 
