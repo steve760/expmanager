@@ -79,7 +79,7 @@ export function Modal({ isOpen, onClose, title, children, footer, maxWidth = 'ma
         className={`relative flex max-h-[90vh] w-full flex-col ${maxWidth} overflow-hidden rounded-2xl bg-white shadow-elevated dark:bg-stone-800 dark:shadow-elevated-dark animate-fade-in`}
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-center gap-3 border-b border-[#5B21B6] bg-[#6D28D9] px-6 py-4 dark:border-violet-900 dark:bg-[#6D28D9]">
+        <header className="flex shrink-0 items-center gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-4 dark:border-[#2d1648] dark:bg-[#361D60]">
           {onBack ? (
             <button
               type="button"

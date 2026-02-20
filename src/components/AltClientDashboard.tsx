@@ -211,7 +211,7 @@ export function AltClientDashboard() {
                         setClientDropdownOpen(false);
                       }}
                       className={`w-full px-4 py-2 text-left text-sm hover:bg-stone-100 dark:hover:bg-stone-700 ${
-                        c.id === altDashboardClientId ? 'bg-accent/10 font-medium text-accent dark:bg-violet-500/20 dark:text-accent-light' : 'text-stone-700 dark:text-stone-200'
+                        c.id === altDashboardClientId ? 'bg-accent/10 font-medium text-accent dark:bg-[#361D60]/20 dark:text-accent-light' : 'text-stone-700 dark:text-stone-200'
                       }`}
                     >
                       {c.name}
@@ -224,13 +224,13 @@ export function AltClientDashboard() {
           <div className="ml-auto flex items-center gap-2">
             <button
               onClick={() => setJobsClientId(client.id)}
-              className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-accent-light dark:hover:bg-violet-500/20"
+              className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20"
             >
               View Jobs
             </button>
             <button
               onClick={() => setOpportunitiesClientId(client.id)}
-              className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-accent-light dark:hover:bg-violet-500/20"
+              className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20"
             >
               Manage Opportunities
             </button>
@@ -289,7 +289,7 @@ export function AltClientDashboard() {
                           key={j.id}
                           type="button"
                           onClick={() => client && setSelection(client.id, project.id, j.id)}
-                          className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-violet-500/15 dark:text-accent-light dark:hover:bg-violet-500/25"
+                          className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                         >
                           {j.name}
                         </button>
@@ -385,7 +385,7 @@ export function AltClientDashboard() {
                   return (
                     <div
                       key={opp.id}
-                      className="flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-stone-100/80 transition-colors hover:border-accent/30 dark:border-stone-600 dark:bg-stone-700/80 dark:hover:border-violet-500/40"
+                      className="flex w-full items-center gap-2 rounded-xl border border-stone-200 bg-stone-100/80 transition-colors hover:border-accent/30 dark:border-stone-600 dark:bg-stone-700/80 dark:hover:border-[#361D60]/40"
                     >
                       <button
                         type="button"
@@ -505,7 +505,7 @@ export function AltClientDashboard() {
               filteredJobs.map((job) => (
                 <div
                   key={job.key}
-                  className="flex w-full items-start gap-2 rounded-xl border border-stone-200 bg-stone-100/80 transition-colors hover:border-accent/30 dark:border-stone-600 dark:bg-stone-700/80 dark:hover:border-violet-500/40"
+                  className="flex w-full items-start gap-2 rounded-xl border border-stone-200 bg-stone-100/80 transition-colors hover:border-accent/30 dark:border-stone-600 dark:bg-stone-700/80 dark:hover:border-[#361D60]/40"
                 >
                   <button
                     type="button"

@@ -111,7 +111,7 @@ function App() {
           </div>
         )}
         {!showClientPage && (
-          <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#5B21B6] bg-[#6D28D9] px-6 py-3 dark:border-violet-900 dark:bg-[#6D28D9]">
+          <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-3 dark:border-[#2d1648] dark:bg-[#361D60]">
             <div className="flex min-w-0 flex-1 items-center gap-4">
               <button
                 onClick={goHome}
@@ -131,7 +131,7 @@ function App() {
               {!showNoClient && (
                 <button
                   onClick={() => setCreateClientModalOpen(true)}
-                  className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#6D28D9] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
+                  className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#361D60] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
                 >
                   Add client
                 </button>

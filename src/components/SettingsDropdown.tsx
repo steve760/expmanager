@@ -13,6 +13,19 @@ export function SettingsDropdown() {
   const [open, setOpen] = useState(false);
   const ref = useRef<HTMLDivElement>(null);
 
+  const initials = (() => {
+    if (profile?.full_name?.trim()) {
+      const parts = profile.full_name.trim().split(/\s+/);
+      if (parts.length >= 2) return (parts[0][0] + parts[parts.length - 1][0]).toUpperCase().slice(0, 2);
+      return parts[0].slice(0, 2).toUpperCase();
+    }
+    if (profile?.email) {
+      const local = profile.email.split('@')[0];
+      return (local?.slice(0, 2) ?? '').toUpperCase();
+    }
+    return null;
+  })();
+
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
       if (ref.current && !ref.current.contains(e.target as Node)) {
@@ -28,10 +41,13 @@ export function SettingsDropdown() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-soft transition-all duration-200 hover:border-accent/30 hover:bg-accent/5 hover:text-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-accent/40 dark:hover:bg-accent/10 dark:hover:text-accent-light"
+        className="flex h-11 min-w-[2.75rem] items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-2.5 text-stone-600 shadow-soft transition-all duration-200 hover:border-[#361D60]/50 hover:bg-[#361D60]/10 hover:text-[#361D60] focus:outline-none focus:ring-2 focus:ring-[#361D60]/40 focus:ring-offset-2 active:bg-[#361D60]/15 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-[#6B4D8A] dark:hover:bg-[#361D60]/25 dark:hover:text-stone-100 dark:focus:ring-[#6B4D8A] dark:active:bg-[#361D60]/35"
         aria-label="Settings"
       >
-        <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+        {initials && (
+          <span className="text-xs font-semibold tabular-nums" aria-hidden>{initials}</span>
+        )}
+        <svg className="h-5 w-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
         </svg>

@@ -117,13 +117,10 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
           <p className="mb-6 text-sm text-stone-600 dark:text-stone-400">
             This area is for administrators. If you need access, please ask your organisation admin or the person who manages this workspace.
           </p>
-          <p className="mb-4 text-xs text-stone-500 dark:text-stone-400">
-            For super admin: set <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">profiles.is_super_admin = true</code> in Supabase. For client admin: add a row in <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">organisation_members</code> with <code className="rounded bg-stone-200 px-1 dark:bg-stone-700">role = &apos;admin&apos;</code>.
-          </p>
           <button
             type="button"
             onClick={onClose}
-            className="w-full rounded-xl bg-stone-800 px-4 py-3 font-medium text-white transition-colors hover:bg-stone-700 dark:bg-stone-200 dark:text-stone-900 dark:hover:bg-stone-300"
+            className="w-full rounded-xl bg-[#361D60] px-4 py-3 font-medium text-white transition-colors hover:bg-[#4A2878] dark:bg-[#361D60] dark:hover:bg-[#4A2878]"
           >
             Back to app
           </button>
@@ -256,7 +253,7 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
                     <button
                       type="submit"
                       disabled={inviteLoading || !inviteEmail.trim()}
-                      className="rounded-lg bg-violet-600 px-4 py-2 text-sm text-white hover:bg-violet-500 disabled:opacity-50"
+                      className="rounded-lg bg-[#361D60] px-4 py-2 text-sm text-white hover:bg-[#4A2878] disabled:opacity-50"
                     >
                       {inviteLoading ? 'Sending…' : 'Invite'}
                     </button>
@@ -295,7 +292,7 @@ export function AdminPanel({ onClose }: AdminPanelProps) {
                                     const { error } = await updateProfileSuperAdmin(p.id, !p.is_super_admin);
                                     if (!error) refreshAdminData();
                                   }}
-                                  className={`rounded px-2 py-1 text-xs ${p.is_super_admin ? 'bg-violet-200 text-violet-800 dark:bg-violet-900/50 dark:text-violet-200' : 'bg-stone-200 text-stone-600 dark:bg-stone-700 dark:text-stone-400'}`}
+                                  className={`rounded px-2 py-1 text-xs ${p.is_super_admin ? 'bg-[#361D60]/20 text-[#361D60] dark:bg-[#361D60]/50 dark:text-stone-200' : 'bg-stone-200 text-stone-600 dark:bg-stone-700 dark:text-stone-400'}`}
                                 >
                                   {p.is_super_admin ? 'Yes' : 'No'}
                                 </button>

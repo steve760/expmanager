@@ -45,7 +45,7 @@ export function HomeView() {
           return (
             <div
               key={client.id}
-              className="group relative rounded-2xl border border-stone-200/80 bg-white/90 shadow-soft backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800/90 dark:hover:border-violet-500/25 dark:hover:shadow-elevated-dark"
+              className="group relative rounded-2xl border border-stone-200/80 bg-white/90 shadow-soft backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800/90 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
             >
               <button
                 onClick={() => setSelectedClientId(client.id)}
@@ -56,7 +56,7 @@ export function HomeView() {
                   <div className="flex items-center justify-between gap-2">
                     <h3 className="font-semibold text-stone-900 transition-colors group-hover:text-accent dark:text-stone-100 dark:group-hover:text-accent-light">{client.name}</h3>
                     {projectCount > 0 && (
-                      <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-violet-500/15 dark:text-accent-light">
+                      <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-[#361D60]/15 dark:text-accent-light">
                         {projectCount} {projectCount === 1 ? 'Meta-Journey' : 'Meta-Journeys'}
                       </span>
                     )}

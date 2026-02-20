@@ -47,14 +47,14 @@ export function SignInPage() {
     <div className="relative flex min-h-screen w-full overflow-hidden bg-stone-950">
       {/* Abstract animated background */}
       <div className="absolute inset-0">
-        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-violet-500/20 blur-3xl animate-float-slow" />
-        <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-violet-600/15 blur-3xl animate-float-slower" />
+        <div className="absolute -left-32 -top-32 h-96 w-96 rounded-full bg-[#361D60]/20 blur-3xl animate-float-slow" />
+        <div className="absolute right-0 top-1/3 h-80 w-80 rounded-full bg-[#361D60]/15 blur-3xl animate-float-slower" />
         <div className="absolute bottom-1/4 left-1/3 h-72 w-72 rounded-full bg-stone-600/20 blur-3xl animate-float-slow" />
-        <div className="absolute -right-20 bottom-0 h-[400px] w-[400px] rounded-full bg-violet-500/10 blur-3xl animate-float-slower" />
+        <div className="absolute -right-20 bottom-0 h-[400px] w-[400px] rounded-full bg-[#361D60]/10 blur-3xl animate-float-slower" />
         {/* Geometric accents */}
-        <div className="absolute left-1/4 top-1/4 h-2 w-2 rounded-full bg-violet-400/60 animate-pulse-slow" />
-        <div className="absolute right-1/3 top-1/3 h-3 w-3 rounded-full bg-violet-300/40 animate-pulse-slow" style={{ animationDelay: '1s' }} />
-        <div className="absolute bottom-1/3 left-1/2 h-2 w-2 rounded-full bg-violet-400/50 animate-pulse-slow" style={{ animationDelay: '2s' }} />
+        <div className="absolute left-1/4 top-1/4 h-2 w-2 rounded-full bg-[#361D60]/50 animate-pulse-slow" />
+        <div className="absolute right-1/3 top-1/3 h-3 w-3 rounded-full bg-[#361D60]/40 animate-pulse-slow" style={{ animationDelay: '1s' }} />
+        <div className="absolute bottom-1/3 left-1/2 h-2 w-2 rounded-full bg-[#361D60]/50 animate-pulse-slow" style={{ animationDelay: '2s' }} />
         <svg className="absolute inset-0 h-full w-full opacity-[0.03]" xmlns="http://www.w3.org/2000/svg">
           <defs>
             <pattern id="grid" width="60" height="60" patternUnits="userSpaceOnUse">
@@ -85,7 +85,7 @@ export function SignInPage() {
                 type="email"
                 placeholder="you@example.com"
                 autoComplete="email"
-                className="w-full rounded-xl border border-stone-600 bg-stone-800/80 px-4 py-3 text-stone-100 placeholder-stone-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                className="w-full rounded-xl border border-stone-600 bg-stone-800/80 px-4 py-3 text-stone-100 placeholder-stone-500 focus:border-[#361D60] focus:outline-none focus:ring-2 focus:ring-[#361D60]/30"
               />
             </div>
             <div>
@@ -97,7 +97,7 @@ export function SignInPage() {
                 type="password"
                 placeholder="••••••••"
                 autoComplete="current-password"
-                className="w-full rounded-xl border border-stone-600 bg-stone-800/80 px-4 py-3 text-stone-100 placeholder-stone-500 focus:border-violet-500 focus:outline-none focus:ring-2 focus:ring-violet-500/30"
+                className="w-full rounded-xl border border-stone-600 bg-stone-800/80 px-4 py-3 text-stone-100 placeholder-stone-500 focus:border-[#361D60] focus:outline-none focus:ring-2 focus:ring-[#361D60]/30"
               />
             </div>
             {error && (
@@ -108,7 +108,7 @@ export function SignInPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full rounded-xl bg-violet-600 px-4 py-3 font-semibold text-white shadow-lg shadow-violet-500/25 transition-all hover:bg-violet-500 hover:shadow-violet-500/30 focus:outline-none focus:ring-2 focus:ring-violet-500 focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-60"
+              className="w-full rounded-xl bg-[#361D60] px-4 py-3 font-semibold text-white shadow-lg shadow-[#361D60]/25 transition-all hover:bg-[#4A2878] hover:shadow-[#361D60]/30 focus:outline-none focus:ring-2 focus:ring-[#361D60] focus:ring-offset-2 focus:ring-offset-stone-900 disabled:opacity-60"
             >
               {loading ? 'Signing in…' : 'Sign In'}
             </button>

@@ -45,13 +45,13 @@ export function ClientProjectsView() {
         <div className="flex items-center gap-3">
           <button
             onClick={() => setJobsClientId(client.id)}
-            className="rounded-2xl border border-accent/40 bg-accent/10 px-6 py-3 text-sm font-semibold text-accent shadow-soft transition-all duration-200 hover:bg-accent/20 hover:shadow-glow active:translate-y-0 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-accent-light dark:hover:bg-violet-500/20 dark:hover:shadow-glow-dark"
+            className="rounded-2xl border border-accent/40 bg-accent/10 px-6 py-3 text-sm font-semibold text-accent shadow-soft transition-all duration-200 hover:bg-accent/20 hover:shadow-glow active:translate-y-0 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20 dark:hover:shadow-glow-dark"
           >
             View Jobs
           </button>
           <button
             onClick={() => setOpportunitiesClientId(client.id)}
-            className="rounded-2xl border border-accent/40 bg-accent/10 px-6 py-3 text-sm font-semibold text-accent shadow-soft transition-all duration-200 hover:bg-accent/20 hover:shadow-glow active:translate-y-0 dark:border-violet-500/40 dark:bg-violet-500/10 dark:text-accent-light dark:hover:bg-violet-500/20 dark:hover:shadow-glow-dark"
+            className="rounded-2xl border border-accent/40 bg-accent/10 px-6 py-3 text-sm font-semibold text-accent shadow-soft transition-all duration-200 hover:bg-accent/20 hover:shadow-glow active:translate-y-0 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20 dark:hover:shadow-glow-dark"
           >
             Manage Opportunities
           </button>
@@ -83,7 +83,7 @@ export function ClientProjectsView() {
           return (
             <div
               key={project.id}
-              className="group relative rounded-2xl border border-stone-200/80 bg-white/90 shadow-soft backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800/90 dark:hover:border-violet-500/25 dark:hover:shadow-elevated-dark"
+              className="group relative rounded-2xl border border-stone-200/80 bg-white/90 shadow-soft backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800/90 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
             >
               <button
                 onClick={() => setSelection(client.id, project.id, null)}
@@ -95,7 +95,7 @@ export function ClientProjectsView() {
               )}
               <div className="mt-3 flex flex-wrap items-center gap-2">
                 {journeyCount > 0 && (
-                  <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-violet-500/15 dark:text-accent-light">
+                  <span className="inline-flex rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-[#361D60]/15 dark:text-accent-light">
                     {journeyCount} {journeyCount === 1 ? 'journey' : 'journeys'}
                   </span>
                 )}

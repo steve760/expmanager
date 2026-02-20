@@ -197,7 +197,7 @@ function SortableJobRow({
                   e.stopPropagation();
                   onOpportunityClick(o);
                 }}
-                className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-violet-500/20 dark:text-accent-light dark:hover:bg-violet-500/30"
+                className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-[#361D60]/20 dark:text-accent-light dark:hover:bg-[#361D60]/30"
               >
                 {o.name}
               </button>

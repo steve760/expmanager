@@ -50,7 +50,7 @@ export function DetailStackModal({
         onClick={(e) => e.stopPropagation()}
       >
         {/* Header: Back | Title | Close — primary purple */}
-        <header className="flex shrink-0 items-center gap-3 border-b border-[#5B21B6] bg-[#6D28D9] px-6 py-4 dark:border-violet-900 dark:bg-[#6D28D9]">
+        <header className="flex shrink-0 items-center gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-4 dark:border-[#2d1648] dark:bg-[#361D60]">
           {canGoBack ? (
             <button
               type="button"
@@ -72,7 +72,7 @@ export function DetailStackModal({
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-white px-4 py-2.5 font-medium text-[#6D28D9] hover:bg-white/90"
+            className="rounded-xl bg-white px-4 py-2.5 font-medium text-[#361D60] hover:bg-white/90"
           >
             Close
           </button>

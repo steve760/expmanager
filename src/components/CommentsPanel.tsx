@@ -114,7 +114,7 @@ export const CommentsPanel = forwardRef<
             {activeCell && (
               <section>
                 <h3 className={`mb-3 ${LABEL_CLASS}`}>Add comment</h3>
-                <div className="rounded-xl border border-accent/30 bg-accent-muted/30 p-4 dark:border-violet-500/30 dark:bg-violet-500/10">
+                <div className="rounded-xl border border-accent/30 bg-accent-muted/30 p-4 dark:border-[#361D60]/30 dark:bg-[#361D60]/10">
                 <p className="text-sm font-medium text-stone-600 dark:text-stone-300">
                   <span className="font-semibold">{getPhaseName(activeCell.phaseId)}</span>
                   <span className="mx-1">—</span>
@@ -131,7 +131,7 @@ export const CommentsPanel = forwardRef<
                   <button
                     onClick={handleAddComment}
                     disabled={!newCommentText.trim()}
-                    className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50 dark:bg-violet-600 dark:hover:bg-violet-500"
+                    className="rounded-lg bg-accent px-3 py-1.5 text-sm font-medium text-white hover:bg-accent-hover disabled:opacity-50 dark:bg-[#361D60] dark:hover:bg-[#4A2878]"
                   >
                     Add comment
                   </button>
@@ -192,7 +192,7 @@ export const CommentsPanel = forwardRef<
                         <div className="mt-2 flex gap-2">
                           <button
                             onClick={() => handleSaveEdit(key)}
-                            className="rounded-lg bg-accent px-2 py-1 text-xs font-medium text-white hover:bg-accent-hover dark:bg-violet-600 dark:hover:bg-violet-500"
+                            className="rounded-lg bg-accent px-2 py-1 text-xs font-medium text-white hover:bg-accent-hover dark:bg-[#361D60] dark:hover:bg-[#4A2878]"
                           >
                             Save
                           </button>
@@ -240,7 +240,7 @@ export const CommentsPanel = forwardRef<
                                 <button
                                   onClick={() => handleAddReply(key)}
                                   disabled={!replyDraft.trim()}
-                                  className="rounded-lg bg-accent px-2 py-1 text-xs font-medium text-white hover:bg-accent-hover disabled:opacity-50 dark:bg-violet-600 dark:hover:bg-violet-500"
+                                  className="rounded-lg bg-accent px-2 py-1 text-xs font-medium text-white hover:bg-accent-hover disabled:opacity-50 dark:bg-[#361D60] dark:hover:bg-[#4A2878]"
                                 >
                                   Reply
                                 </button>

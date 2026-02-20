@@ -96,7 +96,7 @@ export function AddMemberModal({ user, clients, existingOrgIds, allowedRoles, on
             <button
               type="submit"
               disabled={loading || !clientId}
-              className="rounded-xl bg-violet-600 px-4 py-2 text-white hover:bg-violet-500 disabled:opacity-50"
+              className="rounded-xl bg-[#361D60] px-4 py-2 text-white hover:bg-[#4A2878] disabled:opacity-50"
             >
               {loading ? 'Adding…' : 'Add'}
             </button>

@@ -146,7 +146,7 @@ function OpportunityReadOnlyContent({
                         key={jobId}
                         type="button"
                         onClick={() => onLinkedJobClick(jobId)}
-                        className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-violet-500/40 dark:bg-violet-500/15 dark:text-accent-light dark:hover:bg-violet-500/25"
+                        className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                       >
                         {label}
                       </button>

@@ -23,7 +23,7 @@ function JobCard({
   const canTogglePriority = job.phaseId != null && job.jobIndex != null && !!onTogglePriority;
 
   return (
-    <div className="rounded-xl border border-stone-200/80 bg-white shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:shadow-elevated-dark dark:hover:border-violet-500/30">
+    <div className="rounded-xl border border-stone-200/80 bg-white shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:shadow-elevated-dark dark:hover:border-[#361D60]/30">
       <div className="flex items-start gap-2 p-4">
         {canTogglePriority && (
           <button

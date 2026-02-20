@@ -1,13 +1,13 @@
 /**
- * Chat agent: rule-based answers from journey data, with optional LLM when API key is set.
- * Set VITE_OPENAI_API_KEY (and optionally VITE_OPENAI_BASE_URL) to use an LLM.
+ * Chat agent: rule-based answers from journey data, with optional LLM via server proxy.
+ * Secure: use /api/chat (Vercel serverless) with OPENAI_API_KEY on the server.
+ * No client-side API key; optional VITE_OPENAI_API_KEY only for local dev if you prefer.
  */
 
 import { parseOpportunities, parseStruggles } from '@/lib/utils';
 import type { Client, Project, Journey, Phase } from '@/types';
 
-const OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
-const OPENAI_BASE_URL = (import.meta.env.VITE_OPENAI_BASE_URL as string | undefined) || 'https://api.openai.com/v1';
+const VITE_OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
 
 /** Build a compact context string for the LLM system prompt. */
 function buildContextForLLM(ctx: ChatContext): string {
@@ -44,27 +44,54 @@ function buildContextForLLM(ctx: ChatContext): string {
   return lines.join('\n');
 }
 
-/** Call OpenAI-compatible chat API. Returns response text or throws. */
-export async function getLLMResponse(
+/** Call server proxy /api/chat (uses OPENAI_API_KEY on server). Returns response text or throws. */
+async function getLLMResponseViaServer(
   message: string,
   ctx: ChatContext,
-  conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[]
 ): Promise<string> {
-  if (!OPENAI_API_KEY?.trim()) {
-    throw new Error('VITE_OPENAI_API_KEY is not set. Add it in .env to use the LLM.');
+  const systemContent = buildContextForLLM(ctx);
+  const base = typeof window !== 'undefined' && window.location?.origin ? window.location.origin : '';
+  const res = await fetch(`${base}/api/chat`, {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      message,
+      systemContent,
+      conversationHistory,
+    }),
+  });
+  const json = (await res.json()) as { content?: string; error?: string };
+  if (!res.ok) {
+    throw new Error(json.error ?? `Server error ${res.status}`);
+  }
+  const content = json.content?.trim();
+  if (!content) throw new Error('Empty response from server');
+  return content;
+}
+
+/** Call OpenAI directly (client-side key). Only for local dev; avoid in production. */
+async function getLLMResponseDirect(
+  message: string,
+  ctx: ChatContext,
+  conversationHistory: { role: 'user' | 'assistant'; content: string }[]
+): Promise<string> {
+  if (!VITE_OPENAI_API_KEY?.trim()) {
+    throw new Error('VITE_OPENAI_API_KEY is not set. Use server OPENAI_API_KEY or set in .env for local dev.');
   }
   const systemContent = buildContextForLLM(ctx);
+  const baseUrl = (import.meta.env.VITE_OPENAI_BASE_URL as string | undefined) || 'https://api.openai.com/v1';
+  const url = `${baseUrl.replace(/\/$/, '')}/chat/completions`;
   const messages: { role: string; content: string }[] = [
     { role: 'system', content: systemContent },
     ...conversationHistory.slice(-20).map((m) => ({ role: m.role, content: m.content })),
     { role: 'user', content: message },
   ];
-  const url = `${OPENAI_BASE_URL.replace(/\/$/, '')}/chat/completions`;
   const res = await fetch(url, {
     method: 'POST',
     headers: {
       'Content-Type': 'application/json',
-      Authorization: `Bearer ${OPENAI_API_KEY}`,
+      Authorization: `Bearer ${VITE_OPENAI_API_KEY}`,
     },
     body: JSON.stringify({
       model: (import.meta.env.VITE_OPENAI_MODEL as string) || 'gpt-4o-mini',
@@ -82,14 +109,22 @@ export async function getLLMResponse(
   return content;
 }
 
-/** Get response: use LLM if API key is set, else rule-based. */
+/** Get response: try server /api/chat first (OPENAI_API_KEY on server); on failure try client key for local dev; else rule-based. */
 export async function getAgentResponseAsync(
   message: string,
   ctx: ChatContext,
   conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
 ): Promise<string> {
-  if (OPENAI_API_KEY?.trim()) {
-    return getLLMResponse(message, ctx, conversationHistory);
+  try {
+    return await getLLMResponseViaServer(message, ctx, conversationHistory);
+  } catch (serverErr) {
+    if (VITE_OPENAI_API_KEY?.trim()) {
+      try {
+        return await getLLMResponseDirect(message, ctx, conversationHistory);
+      } catch {
+        // Fall through to rule-based
+      }
+    }
   }
   return Promise.resolve(getAgentResponse(message, ctx));
 }

@@ -59,7 +59,7 @@ export function ClientPageView() {
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
-      <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#5B21B6] bg-[#6D28D9] px-6 py-3 dark:border-violet-900 dark:bg-[#6D28D9]">
+      <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-3 dark:border-[#2d1648] dark:bg-[#361D60]">
         <div className="flex min-w-0 flex-1 items-center gap-4">
           <button
             onClick={goHome}
@@ -90,7 +90,7 @@ export function ClientPageView() {
           {activeTab === 'projects' && !selectedJourneyId && clientProjects.length > 0 && (
             <button
               onClick={() => setCreateProjectModalOpen(true)}
-              className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#6D28D9] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
+              className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#361D60] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
             >
               Add Meta-Journey
             </button>
@@ -163,7 +163,7 @@ export function ClientPageView() {
                       <button
                         type="button"
                         onClick={() => setCreateProjectModalOpen(true)}
-                        className="w-full rounded-xl bg-[#6D28D9] px-4 py-3 font-medium text-white transition-colors hover:bg-[#5B21B6] dark:bg-violet-600 dark:hover:bg-violet-700"
+                        className="w-full rounded-xl bg-[#361D60] px-4 py-3 font-medium text-white transition-colors hover:bg-[#4A2878] dark:bg-[#361D60] dark:hover:bg-[#4A2878]"
                       >
                         New Meta-Journey
                       </button>
@@ -240,7 +240,7 @@ export function ClientPageView() {
                               {projJourneys.length === 0 ? (
                                 <button
                                   onClick={() => setSelection(client.id, project.id, null)}
-                                  className="rounded-xl border border-dashed border-stone-200 bg-stone-50/50 py-8 text-center text-sm text-stone-500 transition-colors hover:border-accent/30 hover:bg-accent/5 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-400 dark:hover:border-violet-500/30 dark:hover:bg-violet-500/5"
+                                  className="rounded-xl border border-dashed border-stone-200 bg-stone-50/50 py-8 text-center text-sm text-stone-500 transition-colors hover:border-accent/30 hover:bg-accent/5 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-400 dark:hover:border-[#361D60]/30 dark:hover:bg-[#361D60]/10"
                                 >
                                   No journeys. Click to add journeys.
                                 </button>
@@ -264,7 +264,7 @@ export function ClientPageView() {
                                     <button
                                       key={journey.id}
                                       onClick={() => setSelection(client.id, project.id, journey.id)}
-                                      className="min-w-0 w-full rounded-xl border border-stone-200 bg-white p-4 text-left shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600 dark:bg-stone-800 dark:hover:border-violet-500/25 dark:hover:shadow-elevated-dark"
+                                      className="min-w-0 w-full rounded-xl border border-stone-200 bg-white p-4 text-left shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
                                     >
                                       <h4 className="break-words font-medium text-stone-900 dark:text-stone-100">{journey.name}</h4>
                                       {journey.description && (
@@ -274,7 +274,7 @@ export function ClientPageView() {
                                       )}
                                       <div className="mt-3 flex flex-wrap items-center gap-2">
                                         {jPhases.length > 0 && (
-                                          <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-violet-500/15 dark:text-accent-light">
+                                          <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-[#361D60]/15 dark:text-accent-light">
                                             {jPhases.length} {jPhases.length === 1 ? 'phase' : 'phases'}
                                           </span>
                                         )}
@@ -355,7 +355,7 @@ export function ClientPageView() {
                           return (
                             <div
                               key={journey.id}
-                              className="group relative rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-violet-500/25 dark:hover:shadow-elevated-dark"
+                              className="group relative rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
                             >
                               <button
                                 onClick={() => setSelection(client.id, selectedProject.id, journey.id)}
@@ -367,7 +367,7 @@ export function ClientPageView() {
                                 )}
                                 <div className="mt-3 flex flex-wrap items-center gap-2">
                                   {jPhases.length > 0 && (
-                                    <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-violet-500/15 dark:text-accent-light">
+                                    <span className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent dark:bg-[#361D60]/15 dark:text-accent-light">
                                       {jPhases.length} {jPhases.length === 1 ? 'phase' : 'phases'}
                                     </span>
                                   )}

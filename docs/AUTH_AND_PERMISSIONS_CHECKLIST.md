@@ -151,6 +151,10 @@ $$;
 - [ ] Create a user in **Authentication → Users** (or via Admin API) and set password.
 - [ ] Insert into `profiles`: set `is_super_admin = true` for that user’s id.
 
+### 4.7 Non-super-admin users: must be added to a client to load/save
+
+- [ ] **If a second user (non-super-admin) can’t load or save data:** they have no “my clients” until they have at least one row in `organisation_members`. A SuperAdmin or ClientAdmin must add them: **Admin** → choose the client → add member (User or ClientUser). After that, they can load and save that client’s data. Run the migration `20250218000003_allow_members_upsert_clients.sql` so non-super-admins can also persist client metadata updates for clients they can access.
+
 ---
 
 ## 5. Phase 2 – App: sign-in and “my clients”

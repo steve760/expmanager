@@ -9,10 +9,10 @@ export default {
     extend: {
       colors: {
         accent: {
-          DEFAULT: '#7C3AED',
-          hover: '#6D28D9',
+          DEFAULT: '#361D60',
+          hover: '#4A2878',
           muted: '#EDE9FE',
-          light: '#A78BFA',
+          light: '#6B4D8A',
         },
         warm: {
           50: '#FAFAFF',
@@ -49,8 +49,8 @@ export default {
         'card': '0 2px 8px -2px rgba(0, 0, 0, 0.06), 0 4px 16px -4px rgba(0, 0, 0, 0.04)',
         'elevated': '0 8px 24px -4px rgba(0, 0, 0, 0.08), 0 16px 48px -8px rgba(0, 0, 0, 0.06)',
         'elevated-dark': '0 8px 24px -4px rgba(0, 0, 0, 0.35), 0 16px 48px -8px rgba(0, 0, 0, 0.25)',
-        'glow': '0 0 24px -4px rgba(124, 58, 237, 0.25)',
-        'glow-dark': '0 0 20px -6px rgba(139, 92, 246, 0.15)',
+        'glow': '0 0 24px -4px rgba(54, 29, 96, 0.3)',
+        'glow-dark': '0 0 20px -6px rgba(74, 40, 120, 0.2)',
       },
       backgroundImage: {
         'gradient-radial': 'radial-gradient(var(--tw-gradient-stops))',

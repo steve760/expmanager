@@ -64,7 +64,7 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
       const assistantMsg: Message = {
         id: `assistant-${Date.now()}`,
         role: 'assistant',
-        content: `**Error:** ${message}\n\nIf you intended to use an LLM, set \`VITE_OPENAI_API_KEY\` in your \`.env\` and restart the dev server.`,
+        content: `**Error:** ${message}\n\nFor LLM replies, set \`OPENAI_API_KEY\` in Vercel (project env vars) and redeploy, or for local dev set \`VITE_OPENAI_API_KEY\` in \`.env\`.`,
       };
       setMessages((prev) => [...prev, assistantMsg]);
     } finally {
