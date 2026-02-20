@@ -23,6 +23,8 @@ function App() {
   const clients = useStore((s) => s.clients);
   const selectedClientId = useStore((s) => s.selectedClientId);
   const altDashboardClientId = useStore((s) => s.altDashboardClientId);
+  const profile = useStore((s) => s.profile);
+  const isSuperAdmin = Boolean(profile?.is_super_admin ?? (profile as { isSuperAdmin?: boolean } | null)?.isSuperAdmin);
   const createClientModalOpen = useStore((s) => s.createClientModalOpen);
   const createProjectModalOpen = useStore((s) => s.createProjectModalOpen);
   const createJourneyModalOpen = useStore((s) => s.createJourneyModalOpen);
@@ -128,7 +130,7 @@ function App() {
               )}
             </div>
             <div className="flex shrink-0 items-center gap-2">
-              {!showNoClient && (
+              {!showNoClient && isSuperAdmin && (
                 <button
                   onClick={() => setCreateClientModalOpen(true)}
                   className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#361D60] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
@@ -144,15 +146,17 @@ function App() {
           <div className="flex flex-1 flex-col p-10 md:p-14">
             <EmptyState
               title="No clients yet"
-              description="Create your first client to get started with journey mapping."
-              action={
+              description={isSuperAdmin
+                ? 'Create your first client to get started with journey mapping.'
+                : 'You don’t have access to any clients yet. Ask your organisation admin to add you to a client.'}
+              action={isSuperAdmin ? (
                 <button
                   onClick={() => setCreateClientModalOpen(true)}
                   className="rounded-2xl bg-accent px-8 py-4 font-medium text-white hover:bg-accent-hover"
                 >
                   Create client
                 </button>
-              }
+              ) : undefined}
             />
           </div>
         )}
@@ -165,7 +169,7 @@ function App() {
         {showClientPage && <ClientPageView />}
       </main>
       <PhaseDrawer />
-      <CreateClientModal isOpen={createClientModalOpen} onClose={() => setCreateClientModalOpen(false)} />
+      {isSuperAdmin && <CreateClientModal isOpen={createClientModalOpen} onClose={() => setCreateClientModalOpen(false)} />}
       <CreateProjectModal isOpen={createProjectModalOpen} onClose={() => setCreateProjectModalOpen(false)} />
       <CreateJourneyModal isOpen={createJourneyModalOpen} onClose={() => setCreateJourneyModalOpen(false)} />
       <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />

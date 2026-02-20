@@ -25,6 +25,8 @@ export function Sidebar() {
     } catch {}
   }, [collapsed]);
 
+  const profile = useStore((s) => s.profile);
+  const isSuperAdmin = Boolean(profile?.is_super_admin ?? (profile as { isSuperAdmin?: boolean } | null)?.isSuperAdmin);
   const clientModalOpen = useStore((s) => s.createClientModalOpen);
   const projectModalOpen = useStore((s) => s.createProjectModalOpen);
   const journeyModalOpen = useStore((s) => s.createJourneyModalOpen);
@@ -171,15 +173,17 @@ export function Sidebar() {
                 <section className="mt-4">
                   <div className="mb-2 flex items-center justify-between">
                     <h2 className="text-xs font-semibold uppercase tracking-wider text-stone-600 dark:text-stone-400">Clients</h2>
-                    <button
-                      onClick={() => setCreateClientModalOpen(true)}
-                      className="rounded-xl p-1.5 text-accent hover:bg-sidebar-hover"
-                      aria-label="Add client"
-                    >
-                      <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                      </svg>
-                    </button>
+                    {isSuperAdmin && (
+                      <button
+                        onClick={() => setCreateClientModalOpen(true)}
+                        className="rounded-xl p-1.5 text-accent hover:bg-sidebar-hover"
+                        aria-label="Add client"
+                      >
+                        <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                        </svg>
+                      </button>
+                    )}
                   </div>
                   <ul className="space-y-1">
                     {clients.map((client) => (
@@ -225,15 +229,17 @@ export function Sidebar() {
                       </span>
                     </button>
                   ))}
-                  <button
-                    onClick={() => setCreateClientModalOpen(true)}
-                    className="rounded-xl p-2 text-stone-500 hover:bg-sidebar-hover hover:text-accent dark:text-stone-400 dark:hover:bg-stone-700"
-                    title="Add client"
-                  >
-                    <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                    </svg>
-                  </button>
+                  {isSuperAdmin && (
+                    <button
+                      onClick={() => setCreateClientModalOpen(true)}
+                      className="rounded-xl p-2 text-stone-500 hover:bg-sidebar-hover hover:text-accent dark:text-stone-400 dark:hover:bg-stone-700"
+                      title="Add client"
+                    >
+                      <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                      </svg>
+                    </button>
+                  )}
                 </div>
               )}
             </div>

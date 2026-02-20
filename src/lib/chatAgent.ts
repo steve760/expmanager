@@ -115,9 +115,11 @@ export async function getAgentResponseAsync(
   ctx: ChatContext,
   conversationHistory: { role: 'user' | 'assistant'; content: string }[] = []
 ): Promise<string> {
+  let serverError: string | null = null;
   try {
     return await getLLMResponseViaServer(message, ctx, conversationHistory);
-  } catch (serverErr) {
+  } catch (err) {
+    serverError = err instanceof Error ? err.message : String(err);
     if (VITE_OPENAI_API_KEY?.trim()) {
       try {
         return await getLLMResponseDirect(message, ctx, conversationHistory);
@@ -126,7 +128,11 @@ export async function getAgentResponseAsync(
       }
     }
   }
-  return Promise.resolve(getAgentResponse(message, ctx));
+  const ruleBased = getAgentResponse(message, ctx);
+  if (serverError) {
+    return `**AI not connected.** ${serverError}\n\nAdd \`OPENAI_API_KEY\` in Vercel (Settings → Environment variables) and redeploy so the chat can use OpenAI.\n\n---\n\nIn the meantime you can try:\n\n${ruleBased}`;
+  }
+  return ruleBased;
 }
 
 export interface JobForChat {
