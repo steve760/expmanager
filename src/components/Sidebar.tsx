@@ -117,7 +117,7 @@ export function Sidebar() {
                 <img
                   src="/XPM.svg"
                   alt="ExpManager"
-                  className="h-8 w-auto object-contain"
+                  className="h-[1.6rem] w-auto object-contain"
                   style={{ maxWidth: '120px' }}
                 />
                 <h1 className="truncate text-lg font-semibold text-stone-900 dark:text-stone-100">ExpManager</h1>

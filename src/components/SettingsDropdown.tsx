@@ -42,7 +42,7 @@ export function SettingsDropdown() {
       <button
         type="button"
         onClick={() => setOpen((o) => !o)}
-        className="flex h-11 min-w-[2.75rem] items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-2.5 text-stone-600 shadow-soft transition-all duration-200 hover:border-[#361D60]/50 hover:bg-[#361D60]/10 hover:text-[#361D60] focus:outline-none focus:ring-2 focus:ring-[#361D60]/40 focus:ring-offset-2 active:bg-[#361D60]/15 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-[#6B4D8A] dark:hover:bg-[#361D60]/25 dark:hover:text-stone-100 dark:focus:ring-[#6B4D8A] dark:active:bg-[#361D60]/35"
+        className="flex h-11 min-w-[2.75rem] items-center justify-center gap-1.5 rounded-2xl border border-stone-200 bg-white px-2.5 text-stone-600 shadow-soft transition-all duration-200 hover:bg-stone-100 hover:border-stone-300 hover:text-stone-800 focus:outline-none focus:ring-2 focus:ring-stone-300 focus:ring-offset-2 active:bg-stone-200 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700 dark:hover:border-stone-500 dark:hover:text-stone-100 dark:focus:ring-stone-500 dark:active:bg-stone-600"
         aria-label="Settings"
       >
         {initials && (

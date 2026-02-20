@@ -66,7 +66,7 @@ export function ClientPageView() {
             className="shrink-0 transition-opacity hover:opacity-90"
             title="Home"
           >
-            <img src="/XPM.svg" alt="ExpManager" className="h-8 w-auto brightness-0 invert" />
+            <img src="/XPM.svg" alt="ExpManager" className="h-[1.6rem] w-auto brightness-0 invert" />
           </button>
           <span className="shrink-0 text-white/60">|</span>
           <h2 className="truncate text-lg font-bold tracking-tight text-white">{client.name}</h2>
@@ -95,7 +95,7 @@ export function ClientPageView() {
               Add Meta-Journey
             </button>
           )}
-          <SettingsDropdown />
+          {!(activeTab === 'projects' && selectedJourneyId) && <SettingsDropdown />}
         </div>
       </div>
 
@@ -138,7 +138,9 @@ export function ClientPageView() {
                 </nav>
                 {selectedJourneyId && (
                   <div className="flex shrink-0 justify-end">
-                    <JourneyMapActions />
+                    <JourneyMapActions>
+                      <SettingsDropdown />
+                    </JourneyMapActions>
                   </div>
                 )}
               </div>

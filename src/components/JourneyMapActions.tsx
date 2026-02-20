@@ -40,7 +40,7 @@ export function JourneyMapActions({ children }: JourneyMapActionsProps) {
         <button
           type="button"
           onClick={() => setJourneyMenuOpen((o) => !o)}
-          className="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-soft transition-all duration-200 hover:border-accent/30 hover:bg-accent/5 hover:text-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:border-accent/40 dark:hover:bg-accent/10 dark:hover:text-accent-light"
+          className="flex h-11 w-11 items-center justify-center rounded-2xl border border-stone-200 bg-white text-stone-600 shadow-soft transition-all duration-200 hover:bg-stone-100 hover:border-stone-300 hover:text-stone-800 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200 dark:hover:bg-stone-700 dark:hover:border-stone-500 dark:hover:text-stone-100"
           aria-label="More options"
         >
           <svg className="h-5 w-5" fill="currentColor" viewBox="0 0 24 24">

@@ -120,7 +120,7 @@ function App() {
                 className="shrink-0 transition-opacity hover:opacity-90"
                 title="Home"
               >
-                <img src="/XPM.svg" alt="ExpManager" className="h-8 w-auto brightness-0 invert" />
+                <img src="/XPM.svg" alt="ExpManager" className="h-[1.6rem] w-auto brightness-0 invert" />
               </button>
               {!showNoClient && (
                 <>
