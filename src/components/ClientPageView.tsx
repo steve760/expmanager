@@ -55,8 +55,6 @@ export function ClientPageView() {
     { id: 'opportunities', label: 'Opportunities' },
   ];
 
-  const showAddPhase = activeTab === 'projects' && !!selectedJourneyId;
-
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-3 dark:border-[#2d1648] dark:bg-[#361D60]">
