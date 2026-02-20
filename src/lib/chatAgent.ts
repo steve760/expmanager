@@ -130,7 +130,11 @@ export async function getAgentResponseAsync(
   }
   const ruleBased = getAgentResponse(message, ctx);
   if (serverError) {
-    return `**AI not connected.** ${serverError}\n\nAdd \`OPENAI_API_KEY\` in Vercel (Settings → Environment variables) and redeploy so the chat can use OpenAI.\n\n---\n\nIn the meantime you can try:\n\n${ruleBased}`;
+    const isQuotaError = /429|insufficient_quota|quota|billing/i.test(serverError);
+    const hint = isQuotaError
+      ? 'Your OpenAI account has run out of quota or hit its limit. Check your plan and billing at [platform.openai.com/account/billing](https://platform.openai.com/account/billing).'
+      : 'Add `OPENAI_API_KEY` in Vercel (Settings → Environment variables) and redeploy so the chat can use OpenAI.';
+    return `**AI not connected.** ${serverError}\n\n${hint}\n\n---\n\nIn the meantime you can try:\n\n${ruleBased}`;
   }
   return ruleBased;
 }

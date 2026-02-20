@@ -54,7 +54,10 @@ export function JourneyMapActions({ children }: JourneyMapActionsProps) {
             <button
               type="button"
               className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-stone-700 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-stone-700"
-              onClick={() => setJourneyMenuOpen(false)}
+              onClick={() => {
+                setJourneyMenuOpen(false);
+                window.print();
+              }}
             >
               <svg
                 className="h-4 w-4 text-stone-400"
@@ -69,7 +72,7 @@ export function JourneyMapActions({ children }: JourneyMapActionsProps) {
                   d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.5M17 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2"
                 />
               </svg>
-              Export to PDF
+              Print to PDF
             </button>
             <button
               type="button"

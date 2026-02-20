@@ -642,7 +642,7 @@ export function JourneyMapView() {
       <div className="flex flex-1 flex-col overflow-hidden">
         {/* Journey map table - min-h-0 needed for flex child to scroll; overflow on single container for sticky */}
         <div className="flex min-h-0 flex-1 flex-col p-8" style={{ direction: 'ltr' }}>
-          <div className="min-h-0 flex-1 overflow-auto rounded-2xl border border-stone-200 bg-warm-50/50 dark:border-stone-600 dark:bg-stone-900/50">
+          <div id="journey-map-print-area" className="min-h-0 flex-1 overflow-auto rounded-2xl border border-stone-200 bg-warm-50/50 dark:border-stone-600 dark:bg-stone-900/50">
             <table className="min-w-max border-collapse bg-white dark:bg-stone-800" style={{ width: 'max-content' }}>
               <DndContext
                 sensors={sensors}

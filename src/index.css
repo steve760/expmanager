@@ -8,6 +8,36 @@
   }
 }
 
+/* Print: journey map table only, landscape PDF */
+@media print {
+  body * {
+    visibility: hidden;
+  }
+  #journey-map-print-area,
+  #journey-map-print-area * {
+    visibility: visible;
+  }
+  #journey-map-print-area {
+    position: absolute !important;
+    left: 0 !important;
+    top: 0 !important;
+    width: 100% !important;
+    max-width: none !important;
+    overflow: visible !important;
+    border: none !important;
+    border-radius: 0 !important;
+    padding: 0 !important;
+    background: white !important;
+  }
+  #journey-map-print-area table {
+    box-shadow: none !important;
+  }
+}
+@page {
+  size: landscape;
+  margin: 0.5in;
+}
+
 @layer utilities {
   @keyframes slide-in-from-right {
     from {

@@ -95,13 +95,7 @@ export function ClientPageView() {
               Add Meta-Journey
             </button>
           )}
-          {showAddPhase ? (
-            <JourneyMapActions>
-              <SettingsDropdown />
-            </JourneyMapActions>
-          ) : (
-            <SettingsDropdown />
-          )}
+          <SettingsDropdown />
         </div>
       </div>
 
@@ -109,11 +103,11 @@ export function ClientPageView() {
         {activeTab === 'projects' && (
           <>
             {(selectedProjectId || selectedJourneyId) && (
-              <div className="flex-shrink-0 border-b border-stone-200 bg-white px-6 py-3 dark:border-stone-600 dark:bg-stone-900">
-                <nav className="flex items-center gap-2 text-sm" aria-label="Breadcrumb">
+              <div className="flex flex-shrink-0 items-center justify-between gap-4 border-b border-stone-200 bg-white px-6 py-3 dark:border-stone-600 dark:bg-stone-900">
+                <nav className="flex min-w-0 flex-1 items-center gap-2 text-sm" aria-label="Breadcrumb">
                   <button
                     onClick={() => setSelection(client.id, null, null)}
-                    className="rounded p-1 text-stone-500 hover:bg-stone-100 hover:text-accent dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-accent-light"
+                    className="shrink-0 rounded p-1 text-stone-500 hover:bg-stone-100 hover:text-accent dark:text-stone-400 dark:hover:bg-stone-800 dark:hover:text-accent-light"
                     aria-label="Back to Meta-Journeys"
                   >
                     <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -122,10 +116,10 @@ export function ClientPageView() {
                   </button>
                   {selectedProject && (
                     <>
-                      <span className="text-stone-300 dark:text-stone-500">›</span>
+                      <span className="shrink-0 text-stone-300 dark:text-stone-500">›</span>
                       <button
                         onClick={() => setSelection(client.id, selectedProject.id, null)}
-                        className={`font-medium ${
+                        className={`shrink-0 font-medium ${
                           selectedJourneyId
                             ? 'text-stone-600 hover:text-accent dark:text-stone-400 dark:hover:text-accent-light'
                             : 'text-accent dark:text-accent-light'
@@ -135,13 +129,18 @@ export function ClientPageView() {
                       </button>
                       {selectedJourney && (
                         <>
-                          <span className="text-stone-300 dark:text-stone-500">›</span>
-                          <span className="font-medium text-accent dark:text-accent-light">{selectedJourney.name}</span>
+                          <span className="shrink-0 text-stone-300 dark:text-stone-500">›</span>
+                          <span className="truncate font-medium text-accent dark:text-accent-light">{selectedJourney.name}</span>
                         </>
                       )}
                     </>
                   )}
                 </nav>
+                {selectedJourneyId && (
+                  <div className="flex shrink-0 justify-end">
+                    <JourneyMapActions />
+                  </div>
+                )}
               </div>
             )}
             {!selectedProjectId ? (
