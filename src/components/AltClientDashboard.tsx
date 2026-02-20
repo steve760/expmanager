@@ -5,6 +5,7 @@ import type { CustomerJobTag } from '@/types';
 import { OpportunityReadOnlyModal } from '@/components/OpportunityReadOnlyModal';
 import { OpportunityModal } from '@/components/OpportunityModal';
 import { JobReadOnlyModal, type JobWithMeta } from '@/components/JobReadOnlyModal';
+import { SettingsDropdown } from '@/components/SettingsDropdown';
 import { JobModal } from '@/components/JobModal';
 import { SECTION_HEADING_CLASS } from '@/components/ui/ModalLabel';
 
@@ -234,6 +235,7 @@ export function AltClientDashboard() {
             >
               Manage Opportunities
             </button>
+            <SettingsDropdown />
           </div>
         </div>
       </div>

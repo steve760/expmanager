@@ -1,5 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { useStore } from '@/store';
+import { buildJourneyMapCsv, downloadCsv } from '@/lib/journeyMapCsv';
 
 interface JourneyMapActionsProps {
   /** Rendered between Add phase and the menu (e.g. Settings) */
@@ -9,8 +10,31 @@ interface JourneyMapActionsProps {
 export function JourneyMapActions({ children }: JourneyMapActionsProps) {
   const selectedJourneyId = useStore((s) => s.selectedJourneyId);
   const createPhase = useStore((s) => s.createPhase);
+  const phases = useStore((s) => {
+    if (!s.selectedJourneyId) return [];
+    return s.phases
+      .filter((p) => p.journeyId === s.selectedJourneyId)
+      .sort((a, b) => a.order - b.order);
+  });
+  const journey = useStore((s) => s.journeys.find((j) => j.id === s.selectedJourneyId) ?? null);
+  const opportunities = useStore((s) => s.opportunities);
+  const jobs = useStore((s) => s.jobs);
   const [journeyMenuOpen, setJourneyMenuOpen] = useState(false);
   const journeyMenuRef = useRef<HTMLDivElement>(null);
+
+  const handleExportCsv = () => {
+    setJourneyMenuOpen(false);
+    if (!selectedJourneyId || !journey) return;
+    const opportunitiesForCsv = opportunities.map((o) => ({
+      phaseId: o.phaseId,
+      name: o.name,
+      priority: o.priority,
+      tag: o.priority,
+    }));
+    const csv = buildJourneyMapCsv(phases, journey, opportunitiesForCsv, jobs);
+    const name = (journey.name ?? 'journey-map').replace(/[^\w\s-]/g, '').trim() || 'journey-map';
+    downloadCsv(csv, `${name}.csv`);
+  };
 
   useEffect(() => {
     const handleClickOutside = (e: MouseEvent) => {
@@ -93,6 +117,27 @@ export function JourneyMapActions({ children }: JourneyMapActionsProps) {
                 />
               </svg>
               Export to PNG
+            </button>
+            <button
+              type="button"
+              className="flex w-full items-center gap-3 px-4 py-2.5 text-left text-sm text-stone-700 hover:bg-stone-100 dark:text-stone-100 dark:hover:bg-stone-700"
+              onClick={handleExportCsv}
+              disabled={!selectedJourneyId || !journey}
+            >
+              <svg
+                className="h-4 w-4 text-stone-400"
+                fill="none"
+                viewBox="0 0 24 24"
+                stroke="currentColor"
+              >
+                <path
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                  strokeWidth={2}
+                  d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"
+                />
+              </svg>
+              Export to CSV
             </button>
             <button
               type="button"

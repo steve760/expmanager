@@ -13,7 +13,7 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
     {
       id: 'welcome',
       role: 'assistant',
-      content: "Hi! I'm your journey mapper assistant. Ask me about your clients, projects, journeys, and phases. The map stays visible so you can keep context.",
+      content: "Hi! I only see the **currently selected** client and journey. Ask about that context—phases, opportunities, struggles, jobs—or \"What's the current context?\"",
     },
   ]);
   const [input, setInput] = useState('');
@@ -87,17 +87,22 @@ export function ChatPanel({ isOpen, onClose }: { isOpen: boolean; onClose: () =>
         aria-modal="true"
         aria-label="Chat with journey data"
       >
-        <div className="flex flex-shrink-0 items-center justify-between border-b border-stone-200 px-4 py-3 dark:border-stone-600">
-          <h2 className="text-base font-semibold text-stone-900 dark:text-stone-100">Chat</h2>
-          <button
-            onClick={onClose}
-            className="rounded-lg p-2 text-stone-500 hover:bg-warm-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-700"
-            aria-label="Close chat"
-          >
-            <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-            </svg>
-          </button>
+        <div className="flex flex-shrink-0 flex-col gap-1 border-b border-stone-200 px-4 py-3 dark:border-stone-600">
+          <div className="flex items-center justify-between">
+            <h2 className="text-base font-semibold text-stone-900 dark:text-stone-100">Chat</h2>
+            <button
+              onClick={onClose}
+              className="rounded-lg p-2 text-stone-500 hover:bg-warm-100 hover:text-stone-700 dark:text-stone-400 dark:hover:bg-stone-700"
+              aria-label="Close chat"
+            >
+              <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            </button>
+          </div>
+          <p className="text-xs text-stone-500 dark:text-stone-400">
+            Only the currently selected client and journey. No other data is used.
+          </p>
         </div>
 
         <div

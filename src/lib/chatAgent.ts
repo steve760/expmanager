@@ -9,23 +9,37 @@ import type { Client, Project, Journey, Phase } from '@/types';
 
 const VITE_OPENAI_API_KEY = import.meta.env.VITE_OPENAI_API_KEY as string | undefined;
 
-/** Build a compact context string for the LLM system prompt. */
+/** Build context for LLM: only the currently selected client/journey to avoid cross-contamination. */
 function buildContextForLLM(ctx: ChatContext): string {
+  const selectedClient = ctx.selectedClientId ? ctx.clients.find((c) => c.id === ctx.selectedClientId) : null;
+  const selectedProject = ctx.selectedProjectId ? ctx.projects.find((p) => p.id === ctx.selectedProjectId) : null;
+  const selectedJourney = ctx.selectedJourneyId ? ctx.journeys.find((j) => j.id === ctx.selectedJourneyId) : null;
+
   const lines: string[] = [
-    'You are a helpful assistant for a journey mapping app (ExpManager). The user can ask about their clients, projects (meta-journeys), journeys, phases, jobs, opportunities, and struggles. Answer only from the data below; if something is not in the data, say so.',
+    'You are a helpful assistant for a journey mapping app (ExpManager). You must ONLY answer about the **current selection** below. Do not mention, reference, or expose data from other clients or journeys. If the user asks about something outside this selection, say you can only discuss the currently selected client and journey.',
     '',
     'Current selection:',
-    `- Client: ${ctx.selectedClientId ? ctx.clients.find((c) => c.id === ctx.selectedClientId)?.name ?? '—' : 'none'}`,
-    `- Project (meta-journey): ${ctx.selectedProjectId ? ctx.projects.find((p) => p.id === ctx.selectedProjectId)?.name ?? '—' : 'none'}`,
-    `- Journey: ${ctx.selectedJourneyId ? ctx.journeys.find((j) => j.id === ctx.selectedJourneyId)?.name ?? '—' : 'none'}`,
+    `- Client: ${selectedClient?.name ?? 'none'}`,
+    `- Project (meta-journey): ${selectedProject?.name ?? 'none'}`,
+    `- Journey: ${selectedJourney?.name ?? 'none'}`,
     '',
-    'Data (JSON):',
+    'Data for this selection only (JSON):',
   ];
+
+  const clientsScoped = selectedClient ? [selectedClient] : [];
+  const projectsScoped = selectedClient ? ctx.projects.filter((p) => p.clientId === selectedClient.id) : [];
+  const journeysScoped = selectedProject ? ctx.journeys.filter((j) => j.projectId === selectedProject.id) : [];
+  const phasesScoped = selectedJourney ? ctx.phases.filter((p) => p.journeyId === selectedJourney.id).sort((a, b) => a.order - b.order) : [];
+  const jobIdsInPhases = new Set(phasesScoped.flatMap((p) => p.jobIds ?? []));
+  const jobsScoped = selectedClient
+    ? ctx.jobs.filter((j) => (j as { clientId?: string }).clientId === selectedClient.id || jobIdsInPhases.has(j.id))
+    : [];
+
   const data = {
-    clients: ctx.clients.map((c) => ({ id: c.id, name: c.name, description: c.description })),
-    projects: ctx.projects.map((p) => ({ id: p.id, clientId: p.clientId, name: p.name, description: p.description })),
-    journeys: ctx.journeys.map((j) => ({ id: j.id, projectId: j.projectId, name: j.name, description: j.description })),
-    phases: ctx.phases.map((p) => ({
+    clients: clientsScoped.map((c) => ({ id: c.id, name: c.name, description: c.description })),
+    projects: projectsScoped.map((p) => ({ id: p.id, clientId: p.clientId, name: p.name, description: p.description })),
+    journeys: journeysScoped.map((j) => ({ id: j.id, projectId: j.projectId, name: j.name, description: j.description })),
+    phases: phasesScoped.map((p) => ({
       id: p.id,
       journeyId: p.journeyId,
       order: p.order,
@@ -38,7 +52,7 @@ function buildContextForLLM(ctx: ChatContext): string {
       backStageActions: p.backStageActions,
       jobIds: p.jobIds,
     })),
-    jobs: ctx.jobs.map((j) => ({ id: j.id, name: j.name, tag: j.tag })),
+    jobs: jobsScoped.map((j) => ({ id: j.id, name: j.name, tag: j.tag })),
   };
   lines.push(JSON.stringify(data, null, 0).slice(0, 12000));
   return lines.join('\n');
@@ -173,14 +187,14 @@ export function getAgentResponse(message: string, ctx: ChatContext): string {
   // Greeting / help
   if (!q || /^(hi|hello|hey|help|what can you do|\\?)\s*$/.test(q)) {
     return (
-      "I can answer questions about your journey mapper data. Try asking:\n\n" +
-      "• **What's the current context?** – client, project, journey\n" +
+      "I can answer questions about the **currently selected** client and journey only. Try:\n\n" +
+      "• **What's the current context?** – selected client, project, journey\n" +
       "• **List the phases** in this journey\n" +
       "• **Summarise** a phase by name (e.g. \"Summarise Registration\")\n" +
       "• **What opportunities** are in this journey?\n" +
-      "• **List clients** or **list projects**\n" +
+      "• **List projects** (for this client) or **list journeys** (for this project)\n" +
       "• **What struggles** or **customer jobs** in the current journey\n\n" +
-      "Select a journey in the sidebar first for phase-specific questions."
+      "Select a client, project, and journey in the sidebar first. I never see or mention other clients or journeys."
     );
   }
 
@@ -196,35 +210,30 @@ export function getAgentResponse(message: string, ctx: ChatContext): string {
     return parts.join('\n') || "I couldn't determine the current context.";
   }
 
-  // List clients
+  // List clients (only current selection – no cross-client data)
   if (/\b(clients?|list clients?|show clients?|who are my clients?|all clients?)\b/.test(q)) {
-    if (ctx.clients.length === 0) return "You have no clients yet. Create one from the home view.";
-    return (
-      "**Clients:**\n" +
-      ctx.clients.map((c) => `• ${c.name}${c.description ? ` — ${c.description}` : ''}`).join('\n')
-    );
+    if (!client) return "Select a client in the app first. I can only discuss the currently selected client and journey.";
+    return `**Current client:** ${client.name}${client.description ? ` — ${client.description}` : ''}`;
   }
 
-  // List projects (current client or all)
+  // List projects (only for current client)
   if (/\b(projects?|list projects?|show projects?)\b/.test(q)) {
-    const toList = client ? ctx.projects.filter((p) => p.clientId === client.id) : ctx.projects;
-    if (toList.length === 0) {
-      return client ? `${client.name} has no projects yet.` : "You have no projects yet.";
-    }
+    if (!client) return "Select a client first. I only have access to the currently selected client and journey.";
+    const toList = ctx.projects.filter((p) => p.clientId === client.id);
+    if (toList.length === 0) return `${client.name} has no projects (meta-journeys) yet.`;
     return (
-      (client ? `**Projects for ${client.name}:**\n` : '**Projects:**\n') +
+      `**Projects for ${client.name}:**\n` +
       toList.map((p) => `• ${p.name}${p.description ? ` — ${p.description}` : ''}`).join('\n')
     );
   }
 
-  // List journeys (current project or all)
+  // List journeys (only for current project)
   if (/\b(journeys?|list journeys?|show journeys?)\b/.test(q)) {
-    const toList = project ? ctx.journeys.filter((j) => j.projectId === project.id) : ctx.journeys;
-    if (toList.length === 0) {
-      return project ? `${project.name} has no journeys yet.` : "You have no journeys yet.";
-    }
+    if (!project) return "Select a project (meta-journey) first. I only have access to the currently selected client and journey.";
+    const toList = ctx.journeys.filter((j) => j.projectId === project.id);
+    if (toList.length === 0) return `${project.name} has no journeys yet.`;
     return (
-      (project ? `**Journeys in ${project.name}:**\n` : '**Journeys:**\n') +
+      `**Journeys in ${project.name}:**\n` +
       toList.map((j) => `• ${j.name}${j.description ? ` — ${j.description}` : ''}`).join('\n')
     );
   }
@@ -333,12 +342,12 @@ export function getAgentResponse(message: string, ctx: ChatContext): string {
 
   // Default: suggest context or help
   return (
-    "I can only answer from your journey mapper data. Try:\n\n" +
+    "I only have access to the **currently selected** client and journey. Try:\n\n" +
     "• **\"What's the current context?\"** – see selected client, project, journey\n" +
     "• **\"List the phases\"** – requires a journey to be selected\n" +
     "• **\"What opportunities in this journey?\"**\n" +
-    "• **\"List clients\"** or **\"List projects\"**\n" +
+    "• **\"List projects\"** or **\"List journeys\"** (for current client/project)\n" +
     "• **\"What struggles?\"** or **\"Customer jobs?\"** – for the selected journey\n\n" +
-    "Make sure you've selected a client, project, and journey in the sidebar for journey-specific questions."
+    "Select a client, project, and journey in the sidebar. I never expose data from other clients or journeys."
   );
 }

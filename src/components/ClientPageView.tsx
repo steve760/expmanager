@@ -29,7 +29,7 @@ export function ClientPageView() {
   const deleteProject = useStore((s) => s.deleteProject);
   const deleteClient = useStore((s) => s.deleteClient);
   const deleteJourney = useStore((s) => s.deleteJourney);
-  const [activeTab, setActiveTab] = useState<Tab>('projects');
+  const [activeTab, setActiveTab] = useState<Tab>('insights');
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'client' | 'project' | 'journey'; id: string; name: string } | null>(null);
   const setClientPageActiveTab = useStore((s) => s.setClientPageActiveTab);
   const goHome = useStore((s) => s.goHome);
@@ -49,9 +49,9 @@ export function ClientPageView() {
   if (!client) return null;
 
   const tabs: { id: Tab; label: string }[] = [
-    { id: 'projects', label: 'Journeys' },
     { id: 'insights', label: 'Insights' },
     { id: 'jobs', label: 'Jobs' },
+    { id: 'projects', label: 'Journeys' },
     { id: 'opportunities', label: 'Opportunities' },
   ];
 
@@ -93,7 +93,7 @@ export function ClientPageView() {
               Add Meta-Journey
             </button>
           )}
-          {!(activeTab === 'projects' && selectedJourneyId) && <SettingsDropdown />}
+          <SettingsDropdown />
         </div>
       </div>
 
@@ -136,9 +136,7 @@ export function ClientPageView() {
                 </nav>
                 {selectedJourneyId && (
                   <div className="flex shrink-0 justify-end">
-                    <JourneyMapActions>
-                      <SettingsDropdown />
-                    </JourneyMapActions>
+                    <JourneyMapActions />
                   </div>
                 )}
               </div>
