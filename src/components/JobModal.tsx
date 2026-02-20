@@ -18,6 +18,8 @@ interface JobModalProps {
   embedded?: boolean;
   /** When true with embedded, omit footer (parent provides it e.g. DetailStackModal renderFooter) */
   hideFooter?: boolean;
+  /** Optional form id for submit button association when embedded (avoids duplicate ids in stack modals) */
+  formId?: string;
 }
 
 function ListEditor({
@@ -43,7 +45,9 @@ function ListEditor({
   );
 }
 
-export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave, embedded = false, hideFooter = false }: JobModalProps) {
+const DEFAULT_JOB_FORM_ID = 'edit-job-form';
+
+export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave, embedded = false, hideFooter = false, formId = DEFAULT_JOB_FORM_ID }: JobModalProps) {
   const [name, setName] = useState('');
   const [description, setDescription] = useState('');
   const [tag, setTag] = useState<CustomerJobTag>('Functional');
@@ -99,14 +103,14 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave
       >
         Cancel
       </button>
-      <button type="submit" form="edit-job-form" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+      <button type="submit" form={formId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
         Save
       </button>
     </div>
   );
 
   const formContent = (
-    <form id="edit-job-form" onSubmit={handleSubmit} className="space-y-4">
+    <form id={formId} onSubmit={handleSubmit} className="space-y-4">
         <div>
           <ModalLabel htmlFor="job-name">Name</ModalLabel>
           <input

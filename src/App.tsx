@@ -11,9 +11,11 @@ import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { CreateJourneyModal } from '@/components/modals/CreateJourneyModal';
 import { SignInPage } from '@/components/SignInPage';
 import { AdminPanel } from '@/components/AdminPanel';
+import { FirstRunIntroModal } from '@/components/FirstRunIntroModal';
 import { useStore } from '@/store';
 import { onAuthStateChange } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
+import { hasCompletedOnboarding, markOnboardingComplete } from '@/lib/onboarding';
 
 function App() {
   const initAuth = useStore((s) => s.initAuth);
@@ -38,10 +40,22 @@ function App() {
   const setLoadError = useStore((s) => s.setLoadError);
   const loadState = useStore((s) => s.loadState);
   const [chatOpen, setChatOpen] = useState(false);
+  const [showOnboarding, setShowOnboarding] = useState(false);
+  const onboardingShownThisSessionRef = useRef(false);
 
   useEffect(() => {
     initAuth();
   }, [initAuth]);
+
+  useEffect(() => {
+    if (!isSignedIn || showAdminPanel) return;
+    if (hasCompletedOnboarding() || onboardingShownThisSessionRef.current) return;
+    const t = setTimeout(() => {
+      onboardingShownThisSessionRef.current = true;
+      setShowOnboarding(true);
+    }, 0);
+    return () => clearTimeout(t);
+  }, [isSignedIn, showAdminPanel]);
 
   const initAuthRef = useRef(initAuth);
   initAuthRef.current = initAuth;
@@ -172,6 +186,14 @@ function App() {
       {isSuperAdmin && <CreateClientModal isOpen={createClientModalOpen} onClose={() => setCreateClientModalOpen(false)} />}
       <CreateProjectModal isOpen={createProjectModalOpen} onClose={() => setCreateProjectModalOpen(false)} />
       <CreateJourneyModal isOpen={createJourneyModalOpen} onClose={() => setCreateJourneyModalOpen(false)} />
+      <FirstRunIntroModal
+        isOpen={showOnboarding}
+        onClose={() => setShowOnboarding(false)}
+        onFinish={() => {
+          markOnboardingComplete();
+          setShowOnboarding(false);
+        }}
+      />
       <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
 
       <button
