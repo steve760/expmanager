@@ -36,9 +36,8 @@ export function ModalSectionLabel({ children, className = '' }: { children: Reac
 /** Section title with a thin extending rule — use inside any card section. */
 export function SectionTitle({ children }: { children: ReactNode }) {
   return (
-    <div className="mb-3 flex items-center gap-2.5">
-      <span className="shrink-0 text-[11px] font-semibold text-stone-400 dark:text-stone-500">{children}</span>
-      <div className="h-px flex-1 bg-stone-200 dark:bg-stone-700" />
+    <div className="mb-3 text-[11px] font-semibold text-stone-400 dark:text-stone-500">
+      {children}
     </div>
   );
 }
