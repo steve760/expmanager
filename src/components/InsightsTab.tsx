@@ -18,10 +18,13 @@ import { useStore } from '@/store';
 import type { Insight, PriorityLevel } from '@/types';
 import { CreateInsightModal } from '@/components/modals/CreateInsightModal';
 import { JobReadOnlyModal, type JobWithMeta } from '@/components/JobReadOnlyModal';
+import { JobModal } from '@/components/JobModal';
 import { OpportunityReadOnlyModal } from '@/components/OpportunityReadOnlyModal';
-import { Modal } from '@/components/ui/Modal';
+import { OpportunityModal } from '@/components/OpportunityModal';
+import { DetailStackModal, type DetailStackEntry } from '@/components/DetailStackModal';
+import { InsightDetailPanel } from '@/components/InsightDetailPanel';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { LABEL_CLASS, ModalLabel, ModalSectionLabel } from '@/components/ui/ModalLabel';
+import { LABEL_CLASS } from '@/components/ui/ModalLabel';
 
 const PRIORITY_LEVELS: PriorityLevel[] = ['High', 'Medium', 'Low'];
 
@@ -139,30 +142,41 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
   const updateInsight = useStore((s) => s.updateInsight);
   const deleteInsight = useStore((s) => s.deleteInsight);
   const reorderInsights = useStore((s) => s.reorderInsights);
+  const updateJob = useStore((s) => s.updateJob);
+  const deleteJob = useStore((s) => s.deleteJob);
+  const updateOpportunity = useStore((s) => s.updateOpportunity);
+  const deleteOpportunity = useStore((s) => s.deleteOpportunity);
+  const moveOpportunityToStage = useStore((s) => s.moveOpportunityToStage);
 
-  type ViewStackEntry = { type: 'insight' | 'job' | 'opportunity'; id: string };
   const [createOpen, setCreateOpen] = useState(false);
-  const [editInsight, setEditInsight] = useState<Insight | null>(null);
-  const [viewStack, setViewStack] = useState<ViewStackEntry[]>([]);
+  const [detailStack, setDetailStack] = useState<DetailStackEntry[]>([]);
   const [deleteInsightConfirm, setDeleteInsightConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [deleteJobConfirm, setDeleteJobConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [deleteOpportunityConfirm, setDeleteOpportunityConfirm] = useState<{ id: string; name: string } | null>(null);
 
   const clientOpportunities = useMemo(
     () => opportunities.filter((o) => o.clientId === clientId),
     [opportunities, clientId]
   );
-  const currentView = viewStack[viewStack.length - 1] ?? null;
-  const viewInsight = currentView?.type === 'insight' ? insights.find((i) => i.id === currentView.id) ?? null : null;
-  const viewJobId = currentView?.type === 'job' ? currentView.id : null;
-  const viewOpportunity = currentView?.type === 'opportunity' ? clientOpportunities.find((o) => o.id === currentView.id) ?? null : null;
 
-  const getLinkedOpportunities = useCallback(
-    (jobId: string) =>
-      clientOpportunities.filter((o) => (o.linkedJobIds ?? []).includes(jobId)),
-    [clientOpportunities]
-  );
-  const viewJobWithMeta = useMemo((): JobWithMeta | null => {
-    if (!viewJobId) return null;
-    const job = jobs.find((j) => j.id === viewJobId);
+  const switchCurrentToEdit = useCallback(() => {
+    setDetailStack((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.mode === 'edit') return prev;
+      return [...prev.slice(0, -1), { ...last, mode: 'edit' as const }];
+    });
+  }, []);
+
+  const switchCurrentToView = useCallback(() => {
+    setDetailStack((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.mode === 'view') return prev;
+      return [...prev.slice(0, -1), { ...last, mode: 'view' as const }];
+    });
+  }, []);
+
+  const getJobWithMeta = useCallback((jobId: string): JobWithMeta | null => {
+    const job = jobs.find((j) => j.id === jobId);
     if (!job) return null;
     const phaseRefs = phases.filter((p) => (p.jobIds ?? []).includes(job.id));
     const firstPhase = phaseRefs[0];
@@ -174,10 +188,14 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
       journeyName: journey?.name ?? '—',
       phaseTitle: firstPhase?.title ?? '—',
     };
-  }, [viewJobId, jobs, phases, journeys, projects]);
+  }, [jobs, phases, journeys, projects]);
 
-  const handleBack = useCallback(() => setViewStack((prev) => prev.slice(0, -1)), []);
-  const handleCloseView = useCallback(() => setViewStack([]), []);
+  const getLinkedOpportunities = useCallback(
+    (jobId: string) =>
+      clientOpportunities.filter((o) => (o.linkedJobIds ?? []).includes(jobId)),
+    [clientOpportunities]
+  );
+
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('');
   const [filterLinkedJobs, setFilterLinkedJobs] = useState<'any' | 'has' | 'none'>('any');
@@ -373,8 +391,8 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                         key={insight.id}
                         insight={insight}
                         getLinkedJobs={getLinkedJobs}
-                        onRowClick={() => setViewStack([{ type: 'insight', id: insight.id }])}
-                        onLinkedJobClick={onLinkedJobClick ?? ((jobId) => setViewStack([{ type: 'job', id: jobId }]))}
+                        onRowClick={() => setDetailStack([{ type: 'insight', id: insight.id, mode: 'view' }])}
+                        onLinkedJobClick={onLinkedJobClick ?? ((jobId) => setDetailStack([{ type: 'job', id: jobId, mode: 'view' }]))}
                       />
                     ))}
                   </SortableContext>
@@ -395,119 +413,254 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
         }}
       />
 
-      {viewInsight && (
-        <Modal
-          isOpen
-          onClose={handleCloseView}
-          title={viewInsight.title ?? 'Insight'}
-          onBack={viewStack.length > 1 ? handleBack : undefined}
-          maxWidth="max-w-2xl"
-          footer={
-            <div className="flex flex-wrap gap-3">
-              <button
-                type="button"
-                onClick={() => setDeleteInsightConfirm({ id: viewInsight.id, name: viewInsight.title ?? 'this insight' })}
-                className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
-              >
-                Delete
-              </button>
-              <div className="flex flex-1 gap-3 justify-end">
+      <DetailStackModal
+        isOpen={detailStack.length > 0}
+        stack={detailStack}
+        onBack={() => setDetailStack((prev) => prev.slice(0, -1))}
+        onClose={() => setDetailStack([])}
+        getTitle={(entry) => {
+          if (entry.type === 'insight') {
+            const i = insights.find((x) => x.id === entry.id);
+            return i?.title ?? '—';
+          }
+          if (entry.type === 'job') {
+            const j = jobs.find((x) => x.id === entry.id);
+            return j?.name ?? '—';
+          }
+          const o = clientOpportunities.find((x) => x.id === entry.id);
+          return o?.name ?? '—';
+        }}
+        renderPanel={(entry) => {
+          if (entry.type === 'insight') {
+            const insight = insights.find((i) => i.id === entry.id);
+            if (!insight) return <p className="text-sm text-stone-500">Insight not found.</p>;
+            const linkedJobsForInsight = jobs
+              .filter((j) => (j.insightIds ?? []).includes(insight.id))
+              .map((j) => ({ id: j.id, name: j.name ?? '—' }));
+            if (entry.mode === 'edit') {
+              return (
+                <InsightDetailPanel
+                  insight={insight}
+                  mode="edit"
+                  embedded
+                  hideFooter
+                  onSave={(data) => {
+                    updateInsight(insight.id, data);
+                    switchCurrentToView();
+                  }}
+                  onCancel={switchCurrentToView}
+                />
+              );
+            }
+            return (
+              <InsightDetailPanel
+                insight={insight}
+                mode="view"
+                linkedJobs={linkedJobsForInsight}
+                embedded
+                onLinkedJobClick={(jobId) => setDetailStack((prev) => [...prev, { type: 'job', id: jobId, mode: 'view' }])}
+              />
+            );
+          }
+
+          if (entry.type === 'job') {
+            const jobWithMeta = getJobWithMeta(entry.id);
+            if (!jobWithMeta) return <p className="text-sm text-stone-500">Job not found.</p>;
+            const job = jobs.find((j) => j.id === entry.id)!;
+            if (entry.mode === 'edit') {
+              const jobFormId = `edit-job-form-${entry.id}`;
+              return (
+                <JobModal
+                  isOpen
+                  onClose={switchCurrentToView}
+                  job={job}
+                  jobIndex={0}
+                  insights={insights.filter((i) => i.clientId === clientId)}
+                  onSave={(_index, updated) => {
+                    updateJob(job.id, updated);
+                    switchCurrentToView();
+                  }}
+                  embedded
+                  hideFooter
+                  formId={jobFormId}
+                />
+              );
+            }
+            return (
+              <JobReadOnlyModal
+                isOpen
+                onClose={() => setDetailStack([])}
+                job={jobWithMeta}
+                embedded
+                hideEmbeddedFooter
+                linkedInsights={(job.insightIds ?? [])
+                  .map((id) => insights.find((i) => i.id === id))
+                  .filter(Boolean)
+                  .map((i) => ({ id: i!.id, title: i!.title ?? '—' }))}
+                linkedOpportunities={getLinkedOpportunities(job.id).map((o) => ({ id: o.id, name: o.name }))}
+                onOpportunityClick={(opp) => setDetailStack((prev) => [...prev, { type: 'opportunity', id: opp.id, mode: 'view' }])}
+                onInsightClick={(ins) => setDetailStack((prev) => [...prev, { type: 'insight', id: ins.id, mode: 'view' }])}
+              />
+            );
+          }
+
+          // opportunity
+          const opp = clientOpportunities.find((o) => o.id === entry.id);
+          if (!opp) return <p className="text-sm text-stone-500">Opportunity not found.</p>;
+          if (entry.mode === 'edit') {
+            return (
+              <OpportunityModal
+                isOpen
+                onClose={switchCurrentToView}
+                opportunity={opp}
+                jobsInJourney={jobs.filter((j) => j.clientId === clientId).map((j) => ({ key: j.id, label: j.name ?? '—' }))}
+                onSave={(updated) => {
+                  if (updated.stage != null && updated.stage !== opp.stage) {
+                    moveOpportunityToStage(updated.id, updated.stage, 0);
+                  }
+                  updateOpportunity(updated.id, { name: updated.name, description: updated.description, priority: updated.priority, isPriority: updated.isPriority, pointOfDifferentiation: updated.pointOfDifferentiation, criticalAssumptions: updated.criticalAssumptions, linkedJobIds: updated.linkedJobIds });
+                  switchCurrentToView();
+                }}
+                embedded
+                hideFooter
+              />
+            );
+          }
+          return (
+            <OpportunityReadOnlyModal
+              isOpen
+              onClose={() => setDetailStack([])}
+              opportunity={opp}
+              embedded
+              clientName={clients.find((c) => c.id === opp.clientId)?.name}
+              projectName={projects.find((p) => p.id === opp.projectId)?.name}
+              journeyName={journeys.find((j) => j.id === opp.journeyId)?.name}
+              phaseTitle={phases.find((p) => p.id === opp.phaseId)?.title}
+              linkedJobLabels={jobs.filter((j) => (opp.linkedJobIds ?? []).includes(j.id)).map((j) => ({ key: j.id, label: j.name ?? '—' }))}
+              onLinkedJobClick={(jobId) => setDetailStack((prev) => [...prev, { type: 'job', id: jobId, mode: 'view' }])}
+            />
+          );
+        }}
+        renderFooter={(entry) => {
+          const onClose = () => setDetailStack([]);
+
+          if (entry.mode === 'edit') {
+            if (entry.type === 'insight') {
+              return (
+                <div className="flex gap-3">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                    Cancel
+                  </button>
+                  <button type="submit" form="edit-insight-form-stack" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                    Save
+                  </button>
+                </div>
+              );
+            }
+            if (entry.type === 'job') {
+              const jobFormId = `edit-job-form-${entry.id}`;
+              return (
+                <div className="flex gap-3">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                    Cancel
+                  </button>
+                  <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                    Save
+                  </button>
+                </div>
+              );
+            }
+            if (entry.type === 'opportunity') {
+              return (
+                <div className="flex gap-3">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                    Cancel
+                  </button>
+                  <button type="submit" form="edit-opportunity-form" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                    Save
+                  </button>
+                </div>
+              );
+            }
+            return null;
+          }
+
+          // View mode
+          if (entry.type === 'insight') {
+            const insight = insights.find((i) => i.id === entry.id);
+            return (
+              <div className="flex gap-3">
                 <button
                   type="button"
-                  onClick={() => {
-                    setEditInsight(viewInsight);
-                    handleCloseView();
-                  }}
-                  className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  onClick={() => setDeleteInsightConfirm({ id: entry.id, name: insight?.title ?? 'this insight' })}
+                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={switchCurrentToEdit}
+                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
                 >
                   Edit
                 </button>
-                <button
-                  type="button"
-                  onClick={handleCloseView}
-                  className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
-                >
+                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
                   Close
                 </button>
               </div>
-            </div>
+            );
           }
-        >
-          <div className="space-y-4">
-            <div>
-              <ModalSectionLabel>Description</ModalSectionLabel>
-              <p className="text-sm text-stone-700 dark:text-stone-300 whitespace-pre-wrap">
-                {viewInsight.description || '—'}
-              </p>
-            </div>
-            <div>
-              <ModalSectionLabel>Priority</ModalSectionLabel>
-              <span
-                className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-                  viewInsight.priority === 'High'
-                    ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200'
-                    : viewInsight.priority === 'Medium'
-                      ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200'
-                      : 'bg-stone-100 text-stone-700 dark:bg-stone-600 dark:text-stone-200'
-                }`}
-              >
-                {viewInsight.priority ?? 'Medium'}
-              </span>
-            </div>
-            {getLinkedJobs(viewInsight.id).length > 0 && (
-              <div>
-                <ModalSectionLabel>Linked jobs</ModalSectionLabel>
-                <div className="flex flex-wrap gap-2">
-                  {getLinkedJobs(viewInsight.id).map((j) => (
-                    <button
-                      key={j.id}
-                      type="button"
-                      onClick={() => setViewStack((prev) => [...prev, { type: 'job', id: j.id }])}
-                      className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
-                    >
-                      {j.name}
-                    </button>
-                  ))}
-                </div>
+          if (entry.type === 'job') {
+            const job = jobs.find((j) => j.id === entry.id);
+            return (
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteJobConfirm({ id: entry.id, name: job?.name ?? 'this job' })}
+                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={switchCurrentToEdit}
+                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                >
+                  Edit
+                </button>
+                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  Close
+                </button>
               </div>
-            )}
-          </div>
-        </Modal>
-      )}
-
-      {viewJobWithMeta && (
-        <JobReadOnlyModal
-          isOpen
-          onClose={handleCloseView}
-          job={viewJobWithMeta}
-          linkedInsights={(viewJobWithMeta.insightIds ?? [])
-            .map((id: string) => insights.find((i) => i.id === id))
-            .filter(Boolean)
-            .map((i) => ({ id: (i as { id: string; title?: string }).id, title: (i as { id: string; title?: string }).title ?? '—' }))}
-          linkedOpportunities={getLinkedOpportunities(viewJobWithMeta.id ?? '').map((o) => ({ id: o.id, name: o.name }))}
-          onInsightClick={(ins) => setViewStack((prev) => [...prev, { type: 'insight', id: ins.id }])}
-          onOpportunityClick={(opp) => setViewStack((prev) => [...prev, { type: 'opportunity', id: opp.id }])}
-          onBack={viewStack.length > 1 ? handleBack : undefined}
-        />
-      )}
-
-      {viewOpportunity && (
-        <OpportunityReadOnlyModal
-          isOpen
-          onClose={handleCloseView}
-          opportunity={viewOpportunity}
-          clientName={clients.find((c) => c.id === viewOpportunity.clientId)?.name}
-          projectName={projects.find((p) => p.id === viewOpportunity.projectId)?.name}
-          journeyName={journeys.find((j) => j.id === viewOpportunity.journeyId)?.name}
-          phaseTitle={phases.find((p) => p.id === viewOpportunity.phaseId)?.title}
-          linkedJobLabels={(viewOpportunity.linkedJobIds ?? []).map((jid) => {
-            const j = jobs.find((x) => x.id === jid);
-            return j ? { key: j.id, label: j.name ?? '—' } : { key: jid, label: '—' };
-          })}
-          onLinkedJobClick={(jobId) => setViewStack((prev) => [...prev, { type: 'job', id: jobId }])}
-          onBack={viewStack.length > 1 ? handleBack : undefined}
-        />
-      )}
+            );
+          }
+          if (entry.type === 'opportunity') {
+            const opp = clientOpportunities.find((o) => o.id === entry.id);
+            return (
+              <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteOpportunityConfirm({ id: entry.id, name: opp?.name ?? 'this opportunity' })}
+                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </button>
+                <button
+                  type="button"
+                  onClick={switchCurrentToEdit}
+                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                >
+                  Edit
+                </button>
+                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  Close
+                </button>
+              </div>
+            );
+          }
+          return null;
+        }}
+      />
 
       {deleteInsightConfirm && (
         <ConfirmDialog
@@ -515,8 +668,7 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
           onClose={() => setDeleteInsightConfirm(null)}
           onConfirm={() => {
             deleteInsight(deleteInsightConfirm.id);
-            setViewStack([]);
-            setEditInsight(null);
+            setDetailStack((prev) => prev.filter((e) => !(e.type === 'insight' && e.id === deleteInsightConfirm.id)));
             setDeleteInsightConfirm(null);
           }}
           title="Delete insight"
@@ -524,98 +676,33 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
         />
       )}
 
-      {editInsight && (
-        <Modal
+      {deleteJobConfirm && (
+        <ConfirmDialog
           isOpen
-          onClose={() => setEditInsight(null)}
-          title="Edit insight"
-          maxWidth="max-w-2xl"
-          footer={
-            <div className="flex gap-3">
-              <button
-                type="button"
-                onClick={() => setEditInsight(null)}
-                className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-              >
-                Cancel
-              </button>
-              <button
-                type="submit"
-                form="edit-insight-form"
-                className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
-              >
-                Save
-              </button>
-            </div>
-          }
-        >
-          <EditInsightForm
-            insight={editInsight}
-            onSave={(data) => {
-              updateInsight(editInsight.id, data);
-              setEditInsight(null);
-            }}
-          />
-        </Modal>
+          onClose={() => setDeleteJobConfirm(null)}
+          onConfirm={() => {
+            deleteJob(deleteJobConfirm.id);
+            setDetailStack((prev) => prev.filter((e) => !(e.type === 'job' && e.id === deleteJobConfirm.id)));
+            setDeleteJobConfirm(null);
+          }}
+          title="Delete job"
+          message={`Are you sure you want to delete "${deleteJobConfirm.name}"? It will be removed from any phases and opportunities it's linked to.`}
+        />
+      )}
+
+      {deleteOpportunityConfirm && (
+        <ConfirmDialog
+          isOpen
+          onClose={() => setDeleteOpportunityConfirm(null)}
+          onConfirm={() => {
+            deleteOpportunity(deleteOpportunityConfirm.id);
+            setDetailStack((prev) => prev.filter((e) => !(e.type === 'opportunity' && e.id === deleteOpportunityConfirm.id)));
+            setDeleteOpportunityConfirm(null);
+          }}
+          title="Delete opportunity"
+          message={`Are you sure you want to delete "${deleteOpportunityConfirm.name}"?`}
+        />
       )}
     </div>
-  );
-}
-
-function EditInsightForm({
-  insight,
-  onSave,
-}: {
-  insight: Insight;
-  onSave: (data: { title: string; description?: string; priority: PriorityLevel }) => void;
-  onCancel?: () => void;
-}) {
-  const [title, setTitle] = useState(insight.title ?? '');
-  const [description, setDescription] = useState(insight.description ?? '');
-  const [priority, setPriority] = useState<PriorityLevel>((insight.priority ?? 'Medium') as PriorityLevel);
-
-  return (
-    <form
-      id="edit-insight-form"
-      onSubmit={(e) => {
-        e.preventDefault();
-        onSave({ title: title.trim() || 'Untitled', description: description.trim() || undefined, priority });
-      }}
-      className="space-y-4"
-    >
-      <div>
-        <ModalLabel htmlFor="edit-insight-title">Title</ModalLabel>
-        <input
-          id="edit-insight-title"
-          type="text"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          className="w-full rounded-xl border border-stone-300 px-4 py-2.5 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-        />
-      </div>
-      <div>
-        <ModalLabel htmlFor="edit-insight-desc">Description</ModalLabel>
-        <textarea
-          id="edit-insight-desc"
-          value={description}
-          onChange={(e) => setDescription(e.target.value)}
-          rows={4}
-          className="w-full rounded-xl border border-stone-300 px-4 py-2.5 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-        />
-      </div>
-      <div>
-        <ModalLabel htmlFor="edit-insight-priority">Priority</ModalLabel>
-        <select
-          id="edit-insight-priority"
-          value={priority}
-          onChange={(e) => setPriority(e.target.value as PriorityLevel)}
-          className="w-full rounded-xl border border-stone-300 px-4 py-2.5 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-        >
-          {PRIORITY_LEVELS.map((p) => (
-            <option key={p} value={p}>{p}</option>
-          ))}
-        </select>
-      </div>
-    </form>
   );
 }

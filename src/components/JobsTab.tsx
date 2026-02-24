@@ -226,6 +226,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
   const moveOpportunityToStage = useStore((s) => s.moveOpportunityToStage);
   const updateInsight = useStore((s) => s.updateInsight);
   const deleteInsight = useStore((s) => s.deleteInsight);
+  const deleteOpportunity = useStore((s) => s.deleteOpportunity);
 
   const [detailStack, setDetailStack] = useState<DetailStackEntry[]>([]);
 
@@ -247,6 +248,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
   const [createJobOpen, setCreateJobOpen] = useState(false);
   const [deleteJobConfirm, setDeleteJobConfirm] = useState<{ id: string; name: string } | null>(null);
   const [deleteInsightConfirm, setDeleteInsightConfirm] = useState<{ id: string; name: string } | null>(null);
+  const [deleteOpportunityConfirm, setDeleteOpportunityConfirm] = useState<{ id: string; name: string } | null>(null);
   const [filterMetaJourney, setFilterMetaJourney] = useState<string>('');
   const [filterJourney, setFilterJourney] = useState<string>('');
   const [filterType, setFilterType] = useState<string>('');
@@ -777,8 +779,16 @@ export function JobsTab({ clientId }: { clientId: string }) {
             );
           }
           if (entry.type === 'opportunity') {
+            const opp = clientOpportunities.find((o) => o.id === entry.id);
             return (
               <div className="flex gap-3">
+                <button
+                  type="button"
+                  onClick={() => setDeleteOpportunityConfirm({ id: entry.id, name: opp?.name ?? 'this opportunity' })}
+                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                >
+                  Delete
+                </button>
                 <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
                   Edit
                 </button>
@@ -841,6 +851,20 @@ export function JobsTab({ clientId }: { clientId: string }) {
           }}
           title="Delete insight"
           message={`Are you sure you want to delete "${deleteInsightConfirm.name}"? It will be unlinked from any jobs that reference it.`}
+        />
+      )}
+
+      {deleteOpportunityConfirm && (
+        <ConfirmDialog
+          isOpen
+          onClose={() => setDeleteOpportunityConfirm(null)}
+          onConfirm={() => {
+            deleteOpportunity(deleteOpportunityConfirm.id);
+            setDetailStack((prev) => prev.filter((e) => !(e.type === 'opportunity' && e.id === deleteOpportunityConfirm.id)));
+            setDeleteOpportunityConfirm(null);
+          }}
+          title="Delete opportunity"
+          message={`Are you sure you want to delete "${deleteOpportunityConfirm.name}"?`}
         />
       )}
 
