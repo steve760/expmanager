@@ -571,50 +571,6 @@ export function JobsTab({ clientId }: { clientId: string }) {
           const i = insights.find((x) => x.id === entry.id);
           return i?.title ?? '—';
         }}
-        renderFooter={(entry) => {
-          if (entry.type === 'job' && entry.mode === 'edit') {
-            const jobFormId = `edit-job-form-${entry.id}`;
-            return (
-              <div className="flex flex-wrap gap-3 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }])}
-                  className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  form={jobFormId}
-                  className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
-                >
-                  Save
-                </button>
-              </div>
-            );
-          }
-          if (entry.type === 'opportunity' && entry.mode === 'edit') {
-            return (
-              <div className="flex flex-wrap gap-3 justify-end">
-                <button
-                  type="button"
-                  onClick={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }])}
-                  className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-                >
-                  Cancel
-                </button>
-                <button
-                  type="submit"
-                  form="edit-opportunity-form"
-                  className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
-                >
-                  Save
-                </button>
-              </div>
-            );
-          }
-          return null;
-        }}
         renderPanel={(entry) => {
           if (entry.type === 'job') {
             const jobRow = allJobs.find((j) => j.id === entry.id);
@@ -731,13 +687,21 @@ export function JobsTab({ clientId }: { clientId: string }) {
           );
         }}
         renderFooter={(entry) => {
-          const onClose = () => setDetailStack([]);
-          const onEdit = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }]);
           const onCancel = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
 
           if (entry.mode === 'edit') {
             if (entry.type === 'job') {
-              return null;
+              const jobFormId = `edit-job-form-${entry.id}`;
+              return (
+                <div className="flex gap-3">
+                  <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                    Cancel
+                  </button>
+                  <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                    Save
+                  </button>
+                </div>
+              );
             }
             if (entry.type === 'opportunity') {
               return (
