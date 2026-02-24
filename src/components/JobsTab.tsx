@@ -687,6 +687,8 @@ export function JobsTab({ clientId }: { clientId: string }) {
           );
         }}
         renderFooter={(entry) => {
+          const onClose = () => setDetailStack([]);
+          const onEdit = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }]);
           const onCancel = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
 
           if (entry.mode === 'edit') {
