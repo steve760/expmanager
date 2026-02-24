@@ -22,6 +22,15 @@ export async function signOut() {
   await supabase.auth.signOut();
 }
 
+/** Update the signed-in user's password and clear the force_password_reset flag. */
+export async function updatePassword(newPassword: string): Promise<{ error: Error | null }> {
+  if (!supabase) return { error: new Error('Supabase not configured') };
+  const { error } = await supabase.auth.updateUser({ password: newPassword });
+  if (error) return { error };
+  await supabase.auth.updateUser({ data: { force_password_reset: false } });
+  return { error: null };
+}
+
 export async function fetchProfile(userId: string): Promise<Profile | null> {
   if (!supabase) return null;
   const { data: rpcData, error: rpcError } = await supabase.rpc('get_my_profile');

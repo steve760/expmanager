@@ -16,6 +16,7 @@ import { CreateClientModal } from '@/components/modals/CreateClientModal';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { CreateJourneyModal } from '@/components/modals/CreateJourneyModal';
 import { SignInPage } from '@/components/SignInPage';
+import { ForcePasswordReset } from '@/components/ForcePasswordReset';
 import { AdminPanel } from '@/components/AdminPanel';
 import { FirstRunIntroModal } from '@/components/FirstRunIntroModal';
 import { useStore } from '@/store';
@@ -132,6 +133,7 @@ function HomeLayout({
 function AppContent() {
   const initAuth = useStore((s) => s.initAuth);
   const isSignedIn = useStore((s) => s.isSignedIn);
+  const forcePasswordReset = useStore((s) => s.forcePasswordReset);
   const showAdminPanel = useStore((s) => s.showAdminPanel);
   const setShowAdminPanel = useStore((s) => s.setShowAdminPanel);
   const clients = useStore((s) => s.clients);
@@ -184,6 +186,10 @@ function AppContent() {
 
   if (!isSignedIn) {
     return <SignInPage />;
+  }
+
+  if (forcePasswordReset) {
+    return <ForcePasswordReset />;
   }
 
   if (showAdminPanel) {

@@ -49,6 +49,8 @@ type UIState = {
   loadError: string | null;
   /** True after initial loadState() has completed (avoids showing "no clients" before data is in) */
   stateLoaded: boolean;
+  /** True when the signed-in user must set a new password before accessing the app */
+  forcePasswordReset: boolean;
 };
 
 type Actions = {
@@ -177,6 +179,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   saveError: null as string | null,
   loadError: null as string | null,
   stateLoaded: false,
+  forcePasswordReset: false,
 
   setShowAdminPanel: (v) => set({ showAdminPanel: v }),
   setSaveError: (msg: string | null) => set({ saveError: msg }),
@@ -188,10 +191,12 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
       if (session?.user?.id) {
         const profile = await fetchProfile(session.user.id);
         const organisationMembers = await fetchOrganisationMembers(session.user.id);
-        set({ profile, organisationMembers, isSignedIn: true });
+        const forcePasswordReset = session.user.user_metadata?.force_password_reset === true;
+        set({ profile, organisationMembers, isSignedIn: true, forcePasswordReset });
         try {
           localStorage.setItem('expmanager-signed-in', 'true');
         } catch {}
+        if (forcePasswordReset) return;
         await get().loadState();
         return;
       }
@@ -231,6 +236,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
         profile: null,
         organisationMembers: [],
         showAdminPanel: false,
+        forcePasswordReset: false,
       });
       try {
         localStorage.setItem('expmanager-signed-in', 'false');
