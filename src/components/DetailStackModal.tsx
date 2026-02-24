@@ -78,10 +78,10 @@ export function DetailStackModal({
           </button>
         </header>
 
-        {/* Sliding panels — new panel slides in from the right; inner area scrolls */}
+        {/* Sliding panels — overflow-hidden on wrapper forces inner scroll region to be bounded */}
         <div className="min-h-0 flex-1 flex flex-col overflow-hidden">
           <div
-            className="flex min-h-0 flex-1 will-change-transform"
+            className="flex h-full min-h-0 flex-1 will-change-transform"
             style={{
               width: `${stack.length * 100}%`,
               transform: `translateX(-${((stack.length - 1) / stack.length) * 100}%)`,
@@ -91,10 +91,13 @@ export function DetailStackModal({
             {stack.map((entry) => (
               <div
                 key={`${entry.type}-${entry.id}-${entry.mode}`}
-                className="flex min-h-0 h-full flex-shrink-0 flex-col"
+                className="flex h-full min-h-0 max-h-full flex-shrink-0 flex-col overflow-hidden"
                 style={{ width: `${100 / stack.length}%` }}
               >
-                <div className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden px-6 py-4 pointer-events-auto">
+                <div
+                  className="relative z-10 min-h-0 flex-1 overflow-y-auto overflow-x-hidden overscroll-contain px-6 py-4 pointer-events-auto"
+                  style={{ maxHeight: 'calc(90vh - 12rem)' }}
+                >
                   {renderPanel(entry)}
                 </div>
               </div>
