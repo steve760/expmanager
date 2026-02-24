@@ -1,17 +1,18 @@
 import { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store';
 import { getPhaseHealthScore } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PhaseHealthBar } from '@/components/ui/PhaseHealthBar';
 
 export function HomeView() {
+  const navigate = useNavigate();
   const clients = useStore((s) => s.clients);
   const projects = useStore((s) => s.projects);
   const journeys = useStore((s) => s.journeys);
   const phases = useStore((s) => s.phases);
   const jobs = useStore((s) => s.jobs);
   const opportunities = useStore((s) => s.opportunities);
-  const setSelectedClientId = useStore((s) => s.setSelectedClientId);
   const deleteClient = useStore((s) => s.deleteClient);
   const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
 
@@ -48,7 +49,7 @@ export function HomeView() {
               className="group relative rounded-2xl border border-stone-200/80 bg-white/90 shadow-soft backdrop-blur-sm transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800/90 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
             >
               <button
-                onClick={() => setSelectedClientId(client.id)}
+                onClick={() => navigate(`/clients/${client.id}/insights`)}
                 className="w-full p-6 pr-12 text-left"
               >
               <div className="flex items-start gap-4">

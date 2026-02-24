@@ -1,11 +1,11 @@
 import { useEffect, useState, useRef } from 'react';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
 import { SettingsDropdown } from '@/components/SettingsDropdown';
 import { PhaseDrawer } from '@/components/PhaseDrawer';
 import { ChatPanel } from '@/components/ChatPanel';
 import { EmptyState } from '@/components/EmptyState';
 import { HomeView } from '@/components/HomeView';
-import { ClientPageView } from '@/components/ClientPageView';
-import { AltClientDashboard } from '@/components/AltClientDashboard';
+import { ClientLayout } from '@/components/ClientLayout';
 import { CreateClientModal } from '@/components/modals/CreateClientModal';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { CreateJourneyModal } from '@/components/modals/CreateJourneyModal';
@@ -16,15 +16,93 @@ import { useStore } from '@/store';
 import { onAuthStateChange } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { hasCompletedOnboarding, markOnboardingComplete } from '@/lib/onboarding';
+import type { Client } from '@/types';
 
 function App() {
+  return (
+    <BrowserRouter>
+      <AppContent />
+    </BrowserRouter>
+  );
+}
+
+function HomeLayout({
+  clients,
+  isSuperAdmin,
+  setCreateClientModalOpen,
+}: {
+  clients: Client[];
+  isSuperAdmin: boolean;
+  setCreateClientModalOpen: (v: boolean) => void;
+}) {
+  const navigate = useNavigate();
+  const goHome = useStore((s) => s.goHome);
+  const showNoClient = clients.length === 0;
+
+  return (
+    <div className="flex flex-1 flex-col overflow-hidden">
+      <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-3 dark:border-[#2d1648] dark:bg-[#361D60]">
+        <div className="flex min-w-0 flex-1 items-center gap-4">
+          <button
+            onClick={() => { goHome(); navigate('/'); }}
+            className="shrink-0 transition-opacity hover:opacity-90"
+            title="Home"
+          >
+            <img src="/XPM.svg" alt="ExpManager" className="h-[1.6rem] w-auto brightness-0 invert" />
+          </button>
+          {!showNoClient && (
+            <>
+              <span className="shrink-0 text-white/60">|</span>
+              <h2 className="shrink-0 text-lg font-bold tracking-tight text-white">Clients</h2>
+            </>
+          )}
+        </div>
+        <div className="flex shrink-0 items-center gap-2">
+          {!showNoClient && isSuperAdmin && (
+            <button
+              onClick={() => setCreateClientModalOpen(true)}
+              className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#361D60] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
+            >
+              Add client
+            </button>
+          )}
+          <SettingsDropdown />
+        </div>
+      </div>
+      {showNoClient ? (
+        <div className="flex flex-1 flex-col p-10 md:p-14">
+          <EmptyState
+            title="No clients yet"
+            description={
+              isSuperAdmin
+                ? 'Create your first client to get started with journey mapping.'
+                : 'You don\u2019t have access to any clients yet. Ask your organisation admin to add you to a client.'
+            }
+            action={
+              isSuperAdmin ? (
+                <button
+                  onClick={() => setCreateClientModalOpen(true)}
+                  className="rounded-2xl bg-accent px-8 py-4 font-medium text-white hover:bg-accent-hover"
+                >
+                  Create client
+                </button>
+              ) : undefined
+            }
+          />
+        </div>
+      ) : (
+        <HomeView />
+      )}
+    </div>
+  );
+}
+
+function AppContent() {
   const initAuth = useStore((s) => s.initAuth);
   const isSignedIn = useStore((s) => s.isSignedIn);
   const showAdminPanel = useStore((s) => s.showAdminPanel);
   const setShowAdminPanel = useStore((s) => s.setShowAdminPanel);
   const clients = useStore((s) => s.clients);
-  const selectedClientId = useStore((s) => s.selectedClientId);
-  const altDashboardClientId = useStore((s) => s.altDashboardClientId);
   const profile = useStore((s) => s.profile);
   const isSuperAdmin = Boolean(profile?.is_super_admin ?? (profile as { isSuperAdmin?: boolean } | null)?.isSuperAdmin);
   const createClientModalOpen = useStore((s) => s.createClientModalOpen);
@@ -71,11 +149,6 @@ function App() {
   useEffect(() => {
     document.documentElement.classList.toggle('dark', darkMode);
   }, [darkMode]);
-
-  const showNoClient = clients.length === 0;
-  const showHome = !selectedClientId;
-  const showClientPage = selectedClientId && !altDashboardClientId;
-  const goHome = useStore((s) => s.goHome);
 
   if (!isSignedIn) {
     return <SignInPage />;
@@ -138,62 +211,23 @@ function App() {
             </span>
           </div>
         )}
-        {!showClientPage && (
-          <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-3 dark:border-[#2d1648] dark:bg-[#361D60]">
-            <div className="flex min-w-0 flex-1 items-center gap-4">
-              <button
-                onClick={goHome}
-                className="shrink-0 transition-opacity hover:opacity-90"
-                title="Home"
-              >
-                <img src="/XPM.svg" alt="ExpManager" className="h-[1.6rem] w-auto brightness-0 invert" />
-              </button>
-              {!showNoClient && (
-                <>
-                  <span className="shrink-0 text-white/60">|</span>
-                  <h2 className="shrink-0 text-lg font-bold tracking-tight text-white">Clients</h2>
-                </>
-              )}
-            </div>
-            <div className="flex shrink-0 items-center gap-2">
-              {!showNoClient && isSuperAdmin && (
-                <button
-                  onClick={() => setCreateClientModalOpen(true)}
-                  className="rounded-2xl bg-white px-5 py-2.5 text-sm font-semibold text-[#361D60] shadow-soft transition-all duration-200 hover:bg-white/90 hover:shadow-glow active:translate-y-0"
-                >
-                  Add client
-                </button>
-              )}
-              <SettingsDropdown />
-            </div>
-          </div>
-        )}
-        {showNoClient && (
-          <div className="flex flex-1 flex-col p-10 md:p-14">
-            <EmptyState
-              title="No clients yet"
-              description={isSuperAdmin
-                ? 'Create your first client to get started with journey mapping.'
-                : 'You don’t have access to any clients yet. Ask your organisation admin to add you to a client.'}
-              action={isSuperAdmin ? (
-                <button
-                  onClick={() => setCreateClientModalOpen(true)}
-                  className="rounded-2xl bg-accent px-8 py-4 font-medium text-white hover:bg-accent-hover"
-                >
-                  Create client
-                </button>
-              ) : undefined}
-            />
-          </div>
-        )}
 
-        {!showNoClient && showHome && (
-          <HomeView />
-        )}
-
-        {altDashboardClientId && <AltClientDashboard />}
-        {showClientPage && <ClientPageView />}
+        <Routes>
+          <Route
+            path="/"
+            element={
+              <HomeLayout
+                clients={clients}
+                isSuperAdmin={isSuperAdmin}
+                setCreateClientModalOpen={setCreateClientModalOpen}
+              />
+            }
+          />
+          <Route path="/clients/:clientId/*" element={<ClientLayout />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
       </main>
+
       <PhaseDrawer />
       {isSuperAdmin && <CreateClientModal isOpen={createClientModalOpen} onClose={() => setCreateClientModalOpen(false)} />}
       <CreateProjectModal isOpen={createProjectModalOpen} onClose={() => setCreateProjectModalOpen(false)} />
@@ -217,7 +251,6 @@ function App() {
           <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
         </svg>
       </button>
-
     </div>
   );
 }

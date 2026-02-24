@@ -1,4 +1,5 @@
 import { useState, useMemo, useRef, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { useStore } from '@/store';
 import { getPhaseHealthScore } from '@/lib/utils';
 import type { CustomerJobTag } from '@/types';
@@ -56,6 +57,7 @@ function jobTagStyle(tag: CustomerJobTag): string {
 }
 
 export function AltClientDashboard() {
+  const navigate = useNavigate();
   const altDashboardClientId = useStore((s) => s.altDashboardClientId);
   const clients = useStore((s) => s.clients);
   const projects = useStore((s) => s.projects);
@@ -66,10 +68,6 @@ export function AltClientDashboard() {
   const opportunities = useStore((s) => s.opportunities);
   const updateJob = useStore((s) => s.updateJob);
   const setSelection = useStore((s) => s.setSelection);
-  const setSelectedClientId = useStore((s) => s.setSelectedClientId);
-  const setJobsClientId = useStore((s) => s.setJobsClientId);
-  const setOpportunitiesClientId = useStore((s) => s.setOpportunitiesClientId);
-  const goHome = useStore((s) => s.goHome);
   const updateOpportunity = useStore((s) => s.updateOpportunity);
 
   const [clientDropdownOpen, setClientDropdownOpen] = useState(false);
@@ -182,7 +180,7 @@ export function AltClientDashboard() {
       <div className="flex flex-shrink-0 flex-wrap items-center justify-between gap-4 border-b border-stone-200/80 bg-white/80 px-6 py-4 backdrop-blur-sm dark:border-stone-600/80 dark:bg-stone-900/80">
         <div className="flex w-full flex-wrap items-center gap-4">
           <button
-            onClick={goHome}
+            onClick={() => navigate('/')}
             className="flex items-center gap-2 text-stone-500 hover:text-stone-700 dark:text-stone-400 dark:hover:text-stone-200"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
@@ -208,7 +206,7 @@ export function AltClientDashboard() {
                     <button
                       key={c.id}
                       onClick={() => {
-                        setSelectedClientId(c.id);
+                        navigate(`/clients/${c.id}/dashboard`);
                         setClientDropdownOpen(false);
                       }}
                       className={`w-full px-4 py-2 text-left text-sm hover:bg-stone-100 dark:hover:bg-stone-700 ${
@@ -224,13 +222,13 @@ export function AltClientDashboard() {
           </div>
           <div className="ml-auto flex items-center gap-2">
             <button
-              onClick={() => setJobsClientId(client.id)}
+              onClick={() => navigate(`/clients/${client.id}/jobs`)}
               className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20"
             >
               View Jobs
             </button>
             <button
-              onClick={() => setOpportunitiesClientId(client.id)}
+              onClick={() => navigate(`/clients/${client.id}/opportunities`)}
               className="rounded-xl border border-accent/40 bg-accent/10 px-4 py-2 text-sm font-semibold text-accent transition-all hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/10 dark:text-accent-light dark:hover:bg-[#361D60]/20"
             >
               Manage Opportunities
@@ -272,7 +270,7 @@ export function AltClientDashboard() {
                   >
                     <button
                       type="button"
-                      onClick={() => client && setSelection(client.id, project.id, null)}
+                      onClick={() => { if (client) { setSelection(client.id, project.id, null); navigate(`/clients/${client.id}/journeys`); } }}
                       className="w-full text-left transition-colors hover:opacity-90"
                     >
                       <h4 className="font-semibold text-stone-900 dark:text-stone-100">{project.name}</h4>
@@ -290,7 +288,7 @@ export function AltClientDashboard() {
                         <button
                           key={j.id}
                           type="button"
-                          onClick={() => client && setSelection(client.id, project.id, j.id)}
+                          onClick={() => { if (client) navigate(`/clients/${client.id}/journeys/${j.id}`); }}
                           className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                         >
                           {j.name}
