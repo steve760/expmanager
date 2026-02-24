@@ -604,7 +604,7 @@ export function AltClientDashboard() {
           onOpportunityClick={(opp) => {
             setViewOpportunity(clientOpportunities.find((o) => o.id === opp.id) ?? null);
           }}
-          onEdit={viewJob.jobId ? () => { setEditJobId(viewJob.jobId!); setViewJob(null); } : undefined}
+          onEdit={(viewJob.id ?? viewJob.jobId) ? () => { setEditJobId((viewJob.id ?? viewJob.jobId)!); setViewJob(null); } : undefined}
         />
       )}
       {editJobId && (() => {

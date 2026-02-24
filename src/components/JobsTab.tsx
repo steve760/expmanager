@@ -688,8 +688,16 @@ export function JobsTab({ clientId }: { clientId: string }) {
         }}
         renderFooter={(entry) => {
           const onClose = () => setDetailStack([]);
-          const onEdit = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }]);
-          const onCancel = () => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
+          const onEdit = () => setDetailStack((prev) => {
+            const last = prev[prev.length - 1];
+            if (!last) return prev;
+            return [...prev.slice(0, -1), { ...last, mode: 'edit' as const }];
+          });
+          const onCancel = () => setDetailStack((prev) => {
+            const last = prev[prev.length - 1];
+            if (!last) return prev;
+            return [...prev.slice(0, -1), { ...last, mode: 'view' as const }];
+          });
 
           if (entry.mode === 'edit') {
             if (entry.type === 'job') {
