@@ -8,7 +8,7 @@ import { OpportunityModal } from '@/components/OpportunityModal';
 import { JobReadOnlyModal, type JobWithMeta } from '@/components/JobReadOnlyModal';
 import { SettingsDropdown } from '@/components/SettingsDropdown';
 import { JobModal } from '@/components/JobModal';
-import { SECTION_HEADING_CLASS } from '@/components/ui/ModalLabel';
+import { SectionTitle } from '@/components/ui/ModalLabel';
 
 const JOB_TAG_ORDER: CustomerJobTag[] = ['Functional', 'Social', 'Emotional'];
 const OPPORTUNITY_PRIORITIES = ['High', 'Medium', 'Low'] as const;
@@ -245,7 +245,7 @@ export function AltClientDashboard() {
         >
           {/* Projects - 2-col grid when multiple, always above opportunities */}
           <section>
-            <h3 className={SECTION_HEADING_CLASS}>Meta-Journeys</h3>
+            <SectionTitle>Meta-Journeys</SectionTitle>
             <div
               className={
                 clientProjects.length > 1
@@ -303,7 +303,7 @@ export function AltClientDashboard() {
 
           {/* Opportunities */}
           <section>
-            <h3 className={SECTION_HEADING_CLASS}>Opportunities</h3>
+            <SectionTitle>Opportunities</SectionTitle>
             <div className="mb-3 flex flex-wrap items-end gap-2">
               <button
                 type="button"
@@ -432,7 +432,7 @@ export function AltClientDashboard() {
 
         {/* Jobs sidebar */}
         <aside className="flex min-w-0 flex-1 flex-col overflow-hidden rounded-2xl border border-stone-200/80 bg-white/90 p-4 shadow-soft dark:border-stone-600/80 dark:bg-stone-800/90">
-          <h3 className={SECTION_HEADING_CLASS}>Jobs</h3>
+          <SectionTitle>Jobs</SectionTitle>
           <div className="mb-3 flex flex-wrap items-end gap-2">
             <button
               type="button"

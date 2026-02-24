@@ -1,6 +1,6 @@
 import { useEffect, useState, useCallback, useRef } from 'react';
 import { Drawer } from '@/components/ui/Drawer';
-import { SECTION_HEADING_CLASS } from '@/components/ui/ModalLabel';
+import { SectionTitle } from '@/components/ui/ModalLabel';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { JobModal } from '@/components/JobModal';
 import { useStore } from '@/store';
@@ -102,11 +102,11 @@ export function PhaseDrawer() {
           </div>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Overview</h3>
+            <SectionTitle>Overview</SectionTitle>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Title, description, and channels. These map to the first rows in the journey table.</p>
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Title</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Title</label>
                 <input
                   type="text"
                   value={local.title ?? ''}
@@ -115,7 +115,7 @@ export function PhaseDrawer() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Description</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Description</label>
                 <textarea
                   value={local.description ?? ''}
                   onChange={(e) => scheduleSave({ description: e.target.value })}
@@ -124,7 +124,7 @@ export function PhaseDrawer() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Channels</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Channels</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.channels ?? ''}
@@ -135,7 +135,7 @@ export function PhaseDrawer() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Image</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Image</label>
                 <input
                   type="url"
                   value={local.imageUrl ?? ''}
@@ -158,9 +158,9 @@ export function PhaseDrawer() {
           </section>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Customer</h3>
+            <SectionTitle>Customer</SectionTitle>
             <div>
-              <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Customer jobs & goals</label>
+              <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Customer jobs & goals</label>
               <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Select jobs from the Jobs tab to assign to this phase.</p>
               <div className="space-y-3">
                 {(local.jobIds ?? []).map((jobId) => {
@@ -219,11 +219,11 @@ export function PhaseDrawer() {
           </section>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Experience (front stage)</h3>
+            <SectionTitle>Experience (front stage)</SectionTitle>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Front stage actions and struggles. These match the experience rows in the journey table.</p>
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Front stage actions</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Front stage actions</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.frontStageActions ?? ''}
@@ -234,7 +234,7 @@ export function PhaseDrawer() {
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Struggles</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Struggles</label>
                 <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Add struggles with text and priority (High, Medium, Low)</p>
                 <div className="space-y-3">
                   {parseStruggles(local.struggles ?? '').map((item, index) => {
@@ -303,11 +303,11 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
           </section>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Operations (back stage)</h3>
+            <SectionTitle>Operations (back stage)</SectionTitle>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Internal struggles, back stage actions, systems, and related processes. These match the rows in the journey table.</p>
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Internal struggles</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Internal struggles</label>
                 <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Internal team or process struggles with priority (High, Medium, Low)</p>
                 <div className="space-y-3">
                   {parseStruggles(local.internalStruggles ?? '').map((item, index) => {
@@ -371,7 +371,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
                 </div>
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Back stage actions</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Back stage actions</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.backStageActions ?? ''}
@@ -382,7 +382,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Systems</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Systems</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.systems ?? ''}
@@ -393,7 +393,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
                 />
               </div>
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Related processes</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Related processes</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.relatedProcesses ?? ''}
@@ -407,11 +407,11 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
           </section>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Opportunities</h3>
+            <SectionTitle>Opportunities</SectionTitle>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Opportunities for this phase. Shown in the Opportunities row in the journey table.</p>
             <div className="space-y-5">
               <div>
-                <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Opportunities (notes)</label>
+                <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Opportunities (notes)</label>
                 <p className="mb-1.5 text-sm text-stone-500 dark:text-stone-200">{LIST_HINT}</p>
                 <textarea
                   value={local.opportunities ?? ''}
@@ -423,7 +423,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
               </div>
             </div>
             <div className="mt-5">
-              <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">Opportunity items</label>
+              <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">Opportunity items</label>
               <p className="mb-3 text-sm text-stone-500 dark:text-stone-200">Add opportunities with name and priority (High, Medium, or Low). Click an opportunity in the table to add details.</p>
               <div className="space-y-3">
                 {opportunities.map((opp) => (
@@ -485,7 +485,7 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
           </section>
 
           <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-            <h3 className={SECTION_HEADING_CLASS}>Related documents</h3>
+            <SectionTitle>Related documents</SectionTitle>
             <p className="mb-4 text-sm text-stone-500 dark:text-stone-200">Links to SharePoint, Jira, Confluence, or other documents. Matches the Related documents row in the journey table.</p>
             <div className="space-y-3">
               {parseRelatedDocuments(local.relatedDocuments ?? '').map((doc) => {
@@ -550,11 +550,11 @@ className="w-full rounded-xl border-2 border-dashed border-stone-300 px-4 py-3 t
 
           {journey && (journey.customRows?.length ?? 0) > 0 && (
             <section className="rounded-2xl border border-stone-200 bg-warm-50/50 p-5 dark:border-stone-600 dark:bg-stone-800/50">
-              <h3 className={SECTION_HEADING_CLASS}>Custom rows</h3>
+              <SectionTitle>Custom rows</SectionTitle>
               <div className="space-y-5">
                 {(journey.customRows ?? []).map((row) => (
                   <div key={row.id}>
-                    <label className="mb-2 block text-sm font-medium text-stone-700 dark:text-stone-300">{row.label}</label>
+                    <label className="mb-2 block text-sm font-medium text-stone-600 dark:text-stone-400">{row.label}</label>
                     <textarea
                       value={((local.customRowValues ?? {}) as Record<string, string>)[row.id] ?? ''}
                       onChange={(e) =>

@@ -35,7 +35,7 @@ function FieldSection({ label, value, className = '' }: { label: string; value: 
   return (
     <div className={className}>
       <ModalSectionLabel>{label}</ModalSectionLabel>
-      <div className="text-sm text-stone-700 dark:text-stone-300">{value ?? '—'}</div>
+      <div className="text-sm text-stone-800 dark:text-stone-200">{value ?? '—'}</div>
     </div>
   );
 }

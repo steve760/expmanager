@@ -51,7 +51,7 @@ function FieldSection({ label, value }: { label: string; value: React.ReactNode 
   return (
     <div>
       <ModalSectionLabel>{label}</ModalSectionLabel>
-      <div className="text-sm text-stone-700 dark:text-stone-300">{value ?? '—'}</div>
+      <div className="text-sm text-stone-800 dark:text-stone-200">{value ?? '—'}</div>
     </div>
   );
 }

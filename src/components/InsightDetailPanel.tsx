@@ -49,7 +49,7 @@ export function InsightDetailPanel({
           <div className="space-y-4">
             <div>
               <ModalSectionLabel>Description</ModalSectionLabel>
-              <p className="whitespace-pre-wrap text-sm text-stone-700 dark:text-stone-300">
+              <p className="whitespace-pre-wrap text-sm text-stone-800 dark:text-stone-200">
                 {insight.description || '—'}
               </p>
             </div>
