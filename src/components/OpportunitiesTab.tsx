@@ -1,4 +1,5 @@
 import { useState, useMemo, useCallback } from 'react';
+import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import {
   DndContext,
   DragEndEvent,
@@ -209,10 +210,12 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
   const moveOpportunityToStage = useStore((s) => s.moveOpportunityToStage);
   const reorderOpportunitiesInStage = useStore((s) => s.reorderOpportunitiesInStage);
   const updateOpportunity = useStore((s) => s.updateOpportunity);
+  const deleteOpportunity = useStore((s) => s.deleteOpportunity);
 
   const [activeId, setActiveId] = useState<string | null>(null);
   const [viewOpportunity, setViewOpportunity] = useState<Opportunity | null>(null);
   const [editOpportunity, setEditOpportunity] = useState<Opportunity | null>(null);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ id: string; name: string } | null>(null);
   const [viewJobId, setViewJobId] = useState<string | null>(null);
   const [_returnToView, _setReturnToView] = useState<{ type: 'job'; id: string } | { type: 'opportunity'; id: string } | null>(null);
   const [search, setSearch] = useState('');
@@ -522,7 +525,24 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
             setEditOpportunity(viewOpportunity);
             setViewOpportunity(null);
           }}
+          onDelete={() => {
+            setDeleteConfirm({ id: viewOpportunity.id, name: viewOpportunity.name });
+            setViewOpportunity(null);
+          }}
           onBack={viewJobWithMeta ? () => setViewOpportunity(null) : undefined}
+        />
+      )}
+      {deleteConfirm && (
+        <ConfirmDialog
+          isOpen
+          onClose={() => setDeleteConfirm(null)}
+          onConfirm={() => {
+            deleteOpportunity(deleteConfirm.id);
+            setDeleteConfirm(null);
+          }}
+          title="Delete opportunity"
+          message={`Are you sure you want to delete "${deleteConfirm.name}"?`}
+          requireTypedConfirm="DELETE"
         />
       )}
       {editOpportunity && (
@@ -541,7 +561,6 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
               name: updated.name,
               description: updated.description,
               priority: updated.priority,
-              stage: updated.stage,
               isPriority: updated.isPriority,
               pointOfDifferentiation: updated.pointOfDifferentiation,
               criticalAssumptions: updated.criticalAssumptions,

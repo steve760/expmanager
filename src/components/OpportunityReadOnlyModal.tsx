@@ -12,6 +12,7 @@ interface OpportunityReadOnlyModalProps {
   phaseTitle?: string;
   linkedJobLabels?: { key: string; label: string }[];
   onEdit?: () => void;
+  onDelete?: () => void;
   /** When set, clicking a linked job opens it (e.g. push to stack) */
   onLinkedJobClick?: (jobId: string) => void;
   /** When true, render only content + footer (no Modal wrapper) for use inside DetailStackModal */
@@ -47,6 +48,7 @@ function OpportunityReadOnlyContent({
   phaseTitle,
   linkedJobLabels = [],
   onEdit,
+  onDelete,
   onClose: _onClose,
   onLinkedJobClick,
   embedded,
@@ -58,6 +60,7 @@ function OpportunityReadOnlyContent({
   phaseTitle?: string;
   linkedJobLabels: { key: string; label: string }[];
   onEdit?: () => void;
+  onDelete?: () => void;
   onClose: () => void;
   onLinkedJobClick?: (jobId: string) => void;
   embedded?: boolean;
@@ -171,11 +174,18 @@ function OpportunityReadOnlyContent({
           </div>
         </ViewOnlySection>
       </div>
-      {embedded && onEdit && (
+      {embedded && (onEdit || onDelete) && (
         <div className="mt-4 flex gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
-          <button type="button" onClick={onEdit} className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
-            Edit
-          </button>
+          {onEdit && (
+            <button type="button" onClick={onEdit} className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+              Edit
+            </button>
+          )}
+          {onDelete && (
+            <button type="button" onClick={onDelete} className="rounded-xl border border-red-300 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20">
+              Delete
+            </button>
+          )}
         </div>
       )}
     </>
@@ -192,6 +202,7 @@ export function OpportunityReadOnlyModal({
   phaseTitle,
   linkedJobLabels = [],
   onEdit,
+  onDelete,
   onLinkedJobClick,
   embedded = false,
   onBack,
@@ -200,6 +211,11 @@ export function OpportunityReadOnlyModal({
 
   const footer = (
     <div className="flex gap-3">
+      {onDelete && (
+        <button type="button" onClick={onDelete} className="rounded-xl border border-red-300 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-700 dark:text-red-400 dark:hover:bg-red-900/20">
+          Delete
+        </button>
+      )}
       {onEdit && (
         <button type="button" onClick={onEdit} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
           Edit
@@ -221,6 +237,7 @@ export function OpportunityReadOnlyModal({
         phaseTitle={phaseTitle}
         linkedJobLabels={linkedJobLabels}
         onEdit={onEdit}
+        onDelete={onDelete}
         onClose={onClose}
         onLinkedJobClick={onLinkedJobClick}
         embedded
@@ -238,6 +255,7 @@ export function OpportunityReadOnlyModal({
         phaseTitle={phaseTitle}
         linkedJobLabels={linkedJobLabels}
         onEdit={onEdit}
+        onDelete={onDelete}
         onClose={onClose}
         onLinkedJobClick={onLinkedJobClick}
       />

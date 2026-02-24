@@ -223,6 +223,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
   const updateJob = useStore((s) => s.updateJob);
   const deleteJob = useStore((s) => s.deleteJob);
   const updateOpportunityStore = useStore((s) => s.updateOpportunity);
+  const moveOpportunityToStage = useStore((s) => s.moveOpportunityToStage);
   const updateInsight = useStore((s) => s.updateInsight);
   const deleteInsight = useStore((s) => s.deleteInsight);
 
@@ -649,7 +650,10 @@ export function JobsTab({ clientId }: { clientId: string }) {
                   opportunity={opp}
                   jobsInJourney={jobs.filter((j) => j.clientId === clientId).map((j) => ({ key: j.id, label: j.name ?? '—' }))}
                   onSave={(updated) => {
-                    updateOpportunityStore(updated.id, { name: updated.name, description: updated.description, priority: updated.priority, stage: updated.stage, isPriority: updated.isPriority, pointOfDifferentiation: updated.pointOfDifferentiation, criticalAssumptions: updated.criticalAssumptions, linkedJobIds: updated.linkedJobIds });
+                    if (updated.stage != null && updated.stage !== opp.stage) {
+                      moveOpportunityToStage(updated.id, updated.stage, 0);
+                    }
+                    updateOpportunityStore(updated.id, { name: updated.name, description: updated.description, priority: updated.priority, isPriority: updated.isPriority, pointOfDifferentiation: updated.pointOfDifferentiation, criticalAssumptions: updated.criticalAssumptions, linkedJobIds: updated.linkedJobIds });
                     switchCurrentToView();
                   }}
                   embedded
