@@ -227,6 +227,22 @@ export function JobsTab({ clientId }: { clientId: string }) {
   const deleteInsight = useStore((s) => s.deleteInsight);
 
   const [detailStack, setDetailStack] = useState<DetailStackEntry[]>([]);
+
+  const switchCurrentToEdit = useCallback(() => {
+    setDetailStack((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.mode === 'edit') return prev;
+      return [...prev.slice(0, -1), { ...last, mode: 'edit' as const }];
+    });
+  }, []);
+  const switchCurrentToView = useCallback(() => {
+    setDetailStack((prev) => {
+      const last = prev[prev.length - 1];
+      if (!last || last.mode === 'view') return prev;
+      return [...prev.slice(0, -1), { ...last, mode: 'view' as const }];
+    });
+  }, []);
+
   const [createJobOpen, setCreateJobOpen] = useState(false);
   const [deleteJobConfirm, setDeleteJobConfirm] = useState<{ id: string; name: string } | null>(null);
   const [deleteInsightConfirm, setDeleteInsightConfirm] = useState<{ id: string; name: string } | null>(null);
@@ -592,13 +608,13 @@ export function JobsTab({ clientId }: { clientId: string }) {
               return (
                 <JobModal
                   isOpen
-                  onClose={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }])}
+                  onClose={switchCurrentToView}
                   job={job}
                   jobIndex={0}
                   insights={insights.filter((i) => i.clientId === clientId)}
                   onSave={(_index, updated) => {
                     updateJob(job.id, updated);
-                    setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
+                    switchCurrentToView();
                   }}
                   embedded
                   hideFooter
@@ -616,7 +632,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 linkedOpportunities={getLinkedOpportunities(job.id).map((o) => ({ id: o.id, name: o.name }))}
                 onOpportunityClick={(opp) => setDetailStack((prev) => [...prev, { type: 'opportunity', id: opp.id, mode: 'view' }])}
                 onInsightClick={(ins) => setDetailStack((prev) => [...prev, { type: 'insight', id: ins.id, mode: 'view' }])}
-                onEdit={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }])}
+                onEdit={switchCurrentToEdit}
                 onDelete={() => setDeleteJobConfirm({ id: job.id, name: job.name ?? 'this job' })}
               />
             );
@@ -628,12 +644,12 @@ export function JobsTab({ clientId }: { clientId: string }) {
               return (
                 <OpportunityModal
                   isOpen
-                  onClose={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }])}
+                  onClose={switchCurrentToView}
                   opportunity={opp}
                   jobsInJourney={jobs.filter((j) => j.clientId === clientId).map((j) => ({ key: j.id, label: j.name ?? '—' }))}
                   onSave={(updated) => {
                     updateOpportunityStore(updated.id, { name: updated.name, description: updated.description, priority: updated.priority, stage: updated.stage, isPriority: updated.isPriority, pointOfDifferentiation: updated.pointOfDifferentiation, criticalAssumptions: updated.criticalAssumptions, linkedJobIds: updated.linkedJobIds });
-                    setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
+                    switchCurrentToView();
                   }}
                   embedded
                   hideFooter
@@ -651,7 +667,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 journeyName={journeys.find((j) => j.id === opp.journeyId)?.name}
                 phaseTitle={phases.find((p) => p.id === opp.phaseId)?.title}
                 linkedJobLabels={jobs.filter((j) => (opp.linkedJobIds ?? []).includes(j.id)).map((j) => ({ key: j.id, label: j.name ?? '—' }))}
-                onEdit={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }])}
+                onEdit={switchCurrentToEdit}
                 onLinkedJobClick={(jobId) => setDetailStack((prev) => [...prev, { type: 'job', id: jobId, mode: 'view' }])}
               />
             );
@@ -668,9 +684,9 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 hideFooter
                 onSave={(data) => {
                   updateInsight(insight.id, data);
-                  setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }]);
+                  switchCurrentToView();
                 }}
-                onCancel={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'view' }])}
+                onCancel={switchCurrentToView}
               />
             );
           }
@@ -680,7 +696,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
               mode="view"
               linkedJobs={linkedJobsForInsight}
               embedded
-              onEdit={() => setDetailStack((prev) => [...prev.slice(0, -1), { ...entry, mode: 'edit' }])}
+              onEdit={switchCurrentToEdit}
               onDelete={() => setDeleteInsightConfirm({ id: insight.id, name: insight.title ?? 'this insight' })}
               onLinkedJobClick={(jobId) => setDetailStack((prev) => [...prev, { type: 'job', id: jobId, mode: 'view' }])}
             />
@@ -688,23 +704,13 @@ export function JobsTab({ clientId }: { clientId: string }) {
         }}
         renderFooter={(entry) => {
           const onClose = () => setDetailStack([]);
-          const onEdit = () => setDetailStack((prev) => {
-            const last = prev[prev.length - 1];
-            if (!last) return prev;
-            return [...prev.slice(0, -1), { ...last, mode: 'edit' as const }];
-          });
-          const onCancel = () => setDetailStack((prev) => {
-            const last = prev[prev.length - 1];
-            if (!last) return prev;
-            return [...prev.slice(0, -1), { ...last, mode: 'view' as const }];
-          });
 
           if (entry.mode === 'edit') {
             if (entry.type === 'job') {
               const jobFormId = `edit-job-form-${entry.id}`;
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
                     Cancel
                   </button>
                   <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
@@ -716,7 +722,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
             if (entry.type === 'opportunity') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
                     Cancel
                   </button>
                   <button type="submit" form="edit-opportunity-form" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
@@ -728,7 +734,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
             if (entry.type === 'insight') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
                     Cancel
                   </button>
                   <button type="submit" form="edit-insight-form-stack" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
@@ -754,7 +760,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 </button>
                 <button
                   type="button"
-                  onClick={onEdit}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }}
                   className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
                 >
                   Edit
@@ -768,7 +774,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
           if (entry.type === 'opportunity') {
             return (
               <div className="flex gap-3">
-                <button type="button" onClick={onEdit} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
                   Edit
                 </button>
                 <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
@@ -790,7 +796,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 </button>
                 <button
                   type="button"
-                  onClick={onEdit}
+                  onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }}
                   className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
                 >
                   Edit
