@@ -628,6 +628,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 onClose={() => setDetailStack([])}
                 job={jobWithMeta}
                 embedded
+                hideEmbeddedFooter
                 linkedInsights={(job.insightIds ?? []).map((id) => insights.find((i) => i.id === id)).filter(Boolean).map((i) => ({ id: i!.id, title: i!.title ?? '—' }))}
                 linkedOpportunities={getLinkedOpportunities(job.id).map((o) => ({ id: o.id, name: o.name }))}
                 onOpportunityClick={(opp) => setDetailStack((prev) => [...prev, { type: 'opportunity', id: opp.id, mode: 'view' }])}

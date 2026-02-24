@@ -35,6 +35,8 @@ interface JobReadOnlyModalProps {
   onInsightClick?: (insight: { id: string; title: string }) => void;
   /** When true, render only content + footer (no Modal wrapper) for use inside DetailStackModal */
   embedded?: boolean;
+  /** When true with embedded, do not render the inline Edit/Delete footer (parent e.g. DetailStackModal provides it) */
+  hideEmbeddedFooter?: boolean;
   /** When provided, show Back button (for layered modals) */
   onBack?: () => void;
 }
@@ -64,6 +66,7 @@ function JobReadOnlyContent({
   onOpportunityClick,
   onInsightClick,
   embedded,
+  hideEmbeddedFooter,
 }: {
   job: JobWithMeta;
   onEdit?: () => void;
@@ -74,12 +77,13 @@ function JobReadOnlyContent({
   onOpportunityClick?: (opp: { id: string; name: string }) => void;
   onInsightClick?: (insight: { id: string; title: string }) => void;
   embedded?: boolean;
+  hideEmbeddedFooter?: boolean;
 }) {
   const jobName = job.name ?? job.text ?? '—';
   const j = job as unknown as { priority?: string; isPriority?: boolean };
   const priority = j.priority ?? (j.isPriority ? 'High' : 'Medium');
 
-  const embeddedFooter = embedded && (onEdit || onDelete) && (
+  const embeddedFooter = embedded && !hideEmbeddedFooter && (onEdit || onDelete) && (
     <div className="mt-4 flex flex-wrap gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
       {onDelete && (
         <button type="button" onClick={onDelete} className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20">
@@ -219,7 +223,7 @@ function JobReadOnlyContent({
   );
 }
 
-export function JobReadOnlyModal({ isOpen, onClose, job, onEdit, onDelete, linkedOpportunities = [], linkedInsights = [], onOpportunityClick, onInsightClick, embedded = false, onBack }: JobReadOnlyModalProps) {
+export function JobReadOnlyModal({ isOpen, onClose, job, onEdit, onDelete, linkedOpportunities = [], linkedInsights = [], onOpportunityClick, onInsightClick, embedded = false, hideEmbeddedFooter = false, onBack }: JobReadOnlyModalProps) {
   if (!job) return null;
 
   if (embedded) {
@@ -235,6 +239,7 @@ export function JobReadOnlyModal({ isOpen, onClose, job, onEdit, onDelete, linke
           onOpportunityClick={onOpportunityClick}
           onInsightClick={onInsightClick}
           embedded
+          hideEmbeddedFooter={hideEmbeddedFooter}
         />
       </>
     );
