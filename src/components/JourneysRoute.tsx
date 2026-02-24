@@ -1,13 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useParams } from 'react-router-dom';
 import { useStore } from '@/store';
 import { getPhaseHealthScore } from '@/lib/utils';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 import { PhaseHealthBar } from '@/components/ui/PhaseHealthBar';
-import type { Client } from '@/types';
 
-export function JourneysRoute({ client }: { client: Client }) {
+export function JourneysRoute() {
+  const { clientId } = useParams<{ clientId: string }>();
   const navigate = useNavigate();
+  const clients = useStore((s) => s.clients);
   const projects = useStore((s) => s.projects);
   const journeys = useStore((s) => s.journeys);
   const phases = useStore((s) => s.phases);
@@ -20,21 +21,26 @@ export function JourneysRoute({ client }: { client: Client }) {
   const deleteProject = useStore((s) => s.deleteProject);
   const deleteJourney = useStore((s) => s.deleteJourney);
 
+  const client = clients.find((c) => c.id === clientId);
+
   const [deleteConfirm, setDeleteConfirm] = useState<{ type: 'project' | 'journey'; id: string; name: string } | null>(null);
 
-  const clientProjects = projects.filter((p) => p.clientId === client.id);
+  const clientProjects = client ? projects.filter((p) => p.clientId === client.id) : [];
   const selectedProject = selectedProjectId ? projects.find((p) => p.id === selectedProjectId) : null;
   const projectJourneys = selectedProject ? journeys.filter((j) => j.projectId === selectedProject.id) : [];
 
   // Clear stale project selection if it doesn't belong to this client
   useEffect(() => {
+    if (!client) return;
     if (selectedProjectId) {
       const project = projects.find((p) => p.id === selectedProjectId);
       if (!project || project.clientId !== client.id) {
         setSelection(client.id, null, null);
       }
     }
-  }, [client.id]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [client?.id]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  if (!client) return null;
 
   return (
     <>

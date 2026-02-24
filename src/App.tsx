@@ -1,11 +1,17 @@
 import { useEffect, useState, useRef } from 'react';
-import { BrowserRouter, Routes, Route, Navigate, useNavigate } from 'react-router-dom';
+import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { SettingsDropdown } from '@/components/SettingsDropdown';
 import { PhaseDrawer } from '@/components/PhaseDrawer';
 import { ChatPanel } from '@/components/ChatPanel';
 import { EmptyState } from '@/components/EmptyState';
 import { HomeView } from '@/components/HomeView';
 import { ClientLayout } from '@/components/ClientLayout';
+import { InsightsTab } from '@/components/InsightsTab';
+import { JobsTab } from '@/components/JobsTab';
+import { OpportunitiesTab } from '@/components/OpportunitiesTab';
+import { JourneysRoute } from '@/components/JourneysRoute';
+import { JourneyMapRoute } from '@/components/JourneyMapRoute';
+import { AltClientDashboard } from '@/components/AltClientDashboard';
 import { CreateClientModal } from '@/components/modals/CreateClientModal';
 import { CreateProjectModal } from '@/components/modals/CreateProjectModal';
 import { CreateJourneyModal } from '@/components/modals/CreateJourneyModal';
@@ -17,6 +23,32 @@ import { onAuthStateChange } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
 import { hasCompletedOnboarding, markOnboardingComplete } from '@/lib/onboarding';
 import type { Client } from '@/types';
+
+function InsightsRoute() {
+  const { clientId } = useParams<{ clientId: string }>();
+  return <InsightsTab clientId={clientId!} />;
+}
+
+function JobsRoute() {
+  const { clientId } = useParams<{ clientId: string }>();
+  return <JobsTab clientId={clientId!} />;
+}
+
+function OpportunitiesRoute() {
+  const { clientId } = useParams<{ clientId: string }>();
+  return <OpportunitiesTab clientId={clientId!} />;
+}
+
+function DashboardRoute() {
+  const { clientId } = useParams<{ clientId: string }>();
+  const setAltDashboardClientId = useStore((s) => s.setAltDashboardClientId);
+
+  useEffect(() => {
+    if (clientId) setAltDashboardClientId(clientId);
+  }, [clientId, setAltDashboardClientId]);
+
+  return <AltClientDashboard />;
+}
 
 function App() {
   return (
@@ -223,7 +255,15 @@ function AppContent() {
               />
             }
           />
-          <Route path="/clients/:clientId/*" element={<ClientLayout />} />
+          <Route path="/clients/:clientId" element={<ClientLayout />}>
+            <Route index element={<Navigate to="insights" replace />} />
+            <Route path="insights" element={<InsightsRoute />} />
+            <Route path="jobs" element={<JobsRoute />} />
+            <Route path="journeys" element={<JourneysRoute />} />
+            <Route path="journeys/:journeyId" element={<JourneyMapRoute />} />
+            <Route path="opportunities" element={<OpportunitiesRoute />} />
+            <Route path="dashboard" element={<DashboardRoute />} />
+          </Route>
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
       </main>

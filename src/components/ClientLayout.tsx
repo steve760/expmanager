@@ -1,13 +1,7 @@
 import { useEffect } from 'react';
-import { NavLink, useParams, useNavigate, Routes, Route, Navigate } from 'react-router-dom';
+import { NavLink, useParams, useNavigate, Outlet, Navigate } from 'react-router-dom';
 import { useStore } from '@/store';
 import { SettingsDropdown } from '@/components/SettingsDropdown';
-import { InsightsTab } from '@/components/InsightsTab';
-import { JobsTab } from '@/components/JobsTab';
-import { OpportunitiesTab } from '@/components/OpportunitiesTab';
-import { JourneysRoute } from '@/components/JourneysRoute';
-import { JourneyMapRoute } from '@/components/JourneyMapRoute';
-import { AltClientDashboard } from '@/components/AltClientDashboard';
 
 const tabs = [
   { id: 'insights', label: 'Insights' },
@@ -15,17 +9,6 @@ const tabs = [
   { id: 'journeys', label: 'Journeys' },
   { id: 'opportunities', label: 'Opportunities' },
 ];
-
-function DashboardRoute() {
-  const { clientId } = useParams<{ clientId: string }>();
-  const setAltDashboardClientId = useStore((s) => s.setAltDashboardClientId);
-
-  useEffect(() => {
-    if (clientId) setAltDashboardClientId(clientId);
-  }, [clientId, setAltDashboardClientId]);
-
-  return <AltClientDashboard />;
-}
 
 export function ClientLayout() {
   const { clientId } = useParams<{ clientId: string }>();
@@ -61,7 +44,7 @@ export function ClientLayout() {
             {tabs.map((tab) => (
               <NavLink
                 key={tab.id}
-                to={tab.id}
+                to={`/clients/${clientId}/${tab.id}`}
                 className={({ isActive }) =>
                   `rounded-xl px-3.5 py-2 text-sm font-medium transition-colors ${
                     isActive
@@ -81,16 +64,7 @@ export function ClientLayout() {
       </div>
 
       <div className="flex flex-1 flex-col overflow-auto min-h-0 bg-[#E6E7E9] dark:bg-stone-900">
-        <Routes>
-          <Route index element={<Navigate to="insights" replace />} />
-          <Route path="insights" element={<InsightsTab clientId={client.id} />} />
-          <Route path="jobs" element={<JobsTab clientId={client.id} />} />
-          <Route path="journeys" element={<JourneysRoute client={client} />} />
-          <Route path="journeys/:journeyId" element={<JourneyMapRoute />} />
-          <Route path="opportunities" element={<OpportunitiesTab clientId={client.id} />} />
-          <Route path="dashboard" element={<DashboardRoute />} />
-          <Route path="*" element={<Navigate to="insights" replace />} />
-        </Routes>
+        <Outlet />
       </div>
     </div>
   );
