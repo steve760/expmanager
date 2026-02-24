@@ -261,7 +261,7 @@ export function JobReadOnlyModal({ isOpen, onClose, job, onEdit, onDelete, linke
   );
 
   return (
-    <Modal isOpen={isOpen} onClose={onClose} title="Job details" maxWidth="max-w-2xl" footer={footer} onBack={onBack}>
+    <Modal isOpen={isOpen} onClose={onClose} title="Job details" maxWidth="max-w-[52.5rem]" footer={footer} onBack={onBack}>
       <JobReadOnlyContent
         job={job}
         onEdit={onEdit}

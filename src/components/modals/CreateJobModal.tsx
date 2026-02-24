@@ -93,7 +93,7 @@ export function CreateJobModal({ isOpen, onClose, clientId: _clientId, insights,
       isOpen={isOpen}
       onClose={onClose}
       title="Create job"
-      maxWidth="max-w-2xl"
+      maxWidth="max-w-[52.5rem]"
       footer={
         <div className="flex gap-3">
           <button type="button" onClick={onClose} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">

@@ -1,10 +1,11 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
 import { ModalSectionLabel, ModalLabel } from '@/components/ui/ModalLabel';
+import type { PriorityLevel } from '@/types';
 
-/** Job shape used for editing – compatible with store job and CustomerJobItem */
+/** Job shape used for editing – compatible with store Job and CustomerJobItem */
 export type JobFormData = {
-  id: string;
+  id?: string;
   clientId?: string;
   name?: string;
   text?: string;
@@ -15,15 +16,16 @@ export type JobFormData = {
   socialDimensions?: string[];
   emotionalDimensions?: string[];
   solutionsAndWorkarounds?: string;
-  priority?: string;
+  priority?: PriorityLevel;
   isPriority?: boolean;
   linkedInsightIds?: string[];
+  insightIds?: string[];
 };
 
 export type JobOption = { key: string; label: string };
 
 const JOB_TAGS: JobFormData['tag'][] = ['Functional', 'Social', 'Emotional'];
-const PRIORITIES = ['High', 'Medium', 'Low'] as const;
+const PRIORITIES: PriorityLevel[] = ['High', 'Medium', 'Low'];
 
 function arrayFromText(value: string): string[] {
   return value
@@ -42,11 +44,17 @@ interface JobModalProps {
   onClose: () => void;
   job: JobFormData;
   jobIndex: number;
-  insights: { id: string; title?: string; clientId?: string }[];
+  insights?: { id: string; title?: string; clientId?: string }[];
   onSave: (index: number, updated: Partial<JobFormData>) => void;
+  /** When true, render only form + footer (no Modal wrapper) for use inside DetailStackModal */
+  embedded?: boolean;
+  /** When true with embedded, omit footer (parent provides it e.g. DetailStackModal renderFooter) */
+  hideFooter?: boolean;
+  /** Optional form id for submit button association when embedded (avoids duplicate ids in stack modals) */
+  formId?: string;
 }
 
-export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: JobModalProps) {
+export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave, embedded = false, hideFooter = false, formId: formIdProp }: JobModalProps) {
   const [name, setName] = useState(job.name ?? job.text ?? '');
   const [description, setDescription] = useState(job.description ?? '');
   const [tag, setTag] = useState<JobFormData['tag']>(job.tag ?? 'Functional');
@@ -55,9 +63,9 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
   const [socialDimensions, setSocialDimensions] = useState(textFromArray(job.socialDimensions));
   const [emotionalDimensions, setEmotionalDimensions] = useState(textFromArray(job.emotionalDimensions));
   const [solutionsAndWorkarounds, setSolutionsAndWorkarounds] = useState(job.solutionsAndWorkarounds ?? '');
-  const [priority, setPriority] = useState(job.priority ?? (job.isPriority ? 'High' : 'Medium'));
+  const [priority, setPriority] = useState<PriorityLevel>(job.priority ?? (job.isPriority ? 'High' : 'Medium'));
   const [linkedInsightIds, setLinkedInsightIds] = useState<Set<string>>(
-    () => new Set(job.linkedInsightIds ?? [])
+    () => new Set(job.linkedInsightIds ?? job.insightIds ?? [])
   );
 
   useEffect(() => {
@@ -71,10 +79,11 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
     setEmotionalDimensions(textFromArray(job.emotionalDimensions));
     setSolutionsAndWorkarounds(job.solutionsAndWorkarounds ?? '');
     setPriority(job.priority ?? (job.isPriority ? 'High' : 'Medium'));
-    setLinkedInsightIds(new Set(job.linkedInsightIds ?? []));
+    setLinkedInsightIds(new Set(job.linkedInsightIds ?? job.insightIds ?? []));
   }, [isOpen, job]);
 
   const handleSave = () => {
+    const insightIds = linkedInsightIds.size ? Array.from(linkedInsightIds) : undefined;
     onSave(jobIndex, {
       name: name || undefined,
       description: description || undefined,
@@ -86,7 +95,8 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
       solutionsAndWorkarounds: solutionsAndWorkarounds || undefined,
       priority,
       isPriority: priority === 'High',
-      linkedInsightIds: linkedInsightIds.size ? Array.from(linkedInsightIds) : undefined,
+      linkedInsightIds: insightIds,
+      insightIds,
     });
     onClose();
   };
@@ -100,7 +110,8 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
     });
   };
 
-  const footer = (
+  const formId = formIdProp ?? 'job-edit-form';
+  const footer = !hideFooter ? (
     <div className="flex flex-wrap gap-3 justify-end">
       <button
         type="button"
@@ -110,24 +121,21 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
         Cancel
       </button>
       <button
-        type="button"
-        onClick={handleSave}
+        type="submit"
+        form={formId}
         className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
       >
         Save
       </button>
     </div>
-  );
+  ) : null;
 
-  return (
-    <Modal
-      isOpen={isOpen}
-      onClose={onClose}
-      title="Edit job"
-      maxWidth="max-w-2xl"
-      footer={footer}
+  const formContent = (
+    <form
+      id={formId}
+      onSubmit={(e) => { e.preventDefault(); handleSave(); }}
+      className="space-y-5"
     >
-      <div className="space-y-5">
         <div>
           <ModalLabel htmlFor="job-edit-name">Name</ModalLabel>
           <input
@@ -168,7 +176,7 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
           <select
             id="job-edit-priority"
             value={priority}
-            onChange={(e) => setPriority(e.target.value)}
+            onChange={(e) => setPriority(e.target.value as PriorityLevel)}
             className="mt-1 w-full rounded-xl border border-stone-300 px-4 py-2.5 focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
           >
             {PRIORITIES.map((p) => (
@@ -250,7 +258,27 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights, onSave }: J
             </div>
           </div>
         )}
-      </div>
+    </form>
+  );
+
+  if (embedded) {
+    return (
+      <>
+        {formContent}
+        {footer}
+      </>
+    );
+  }
+
+  return (
+    <Modal
+      isOpen={isOpen}
+      onClose={onClose}
+      title="Edit job"
+      maxWidth="max-w-[52.5rem]"
+      footer={footer}
+    >
+      {formContent}
     </Modal>
   );
 }
