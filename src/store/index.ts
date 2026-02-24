@@ -47,6 +47,8 @@ type UIState = {
   saveError: string | null;
   /** Last Supabase load error; clear when load succeeds or user dismisses */
   loadError: string | null;
+  /** True after initial loadState() has completed (avoids showing "no clients" before data is in) */
+  stateLoaded: boolean;
 };
 
 type Actions = {
@@ -174,6 +176,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   showAdminPanel: false,
   saveError: null as string | null,
   loadError: null as string | null,
+  stateLoaded: false,
 
   setShowAdminPanel: (v) => set({ showAdminPanel: v }),
   setSaveError: (msg: string | null) => set({ saveError: msg }),
@@ -223,6 +226,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
         createClientModalOpen: false,
         createProjectModalOpen: false,
         createJourneyModalOpen: false,
+        stateLoaded: false,
         isSignedIn: false,
         profile: null,
         organisationMembers: [],
@@ -248,6 +252,7 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
       const savedDark = localStorage.getItem('expmanager-dark');
       if (savedDark !== null) set({ darkMode: savedDark === 'true' });
     } catch {}
+    try {
     let state: AppState | null = null;
     if (isSupabaseConfigured()) {
       try {
@@ -459,8 +464,12 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
       insights,
       opportunities,
       cellComments,
+      stateLoaded: true,
     });
     if (needsSave) get().saveState();
+    } finally {
+      set({ stateLoaded: true });
+    }
   },
 
   saveState: async () => {

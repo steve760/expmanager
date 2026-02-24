@@ -39,6 +39,7 @@ function App() {
   const loadError = useStore((s) => s.loadError);
   const setLoadError = useStore((s) => s.setLoadError);
   const loadState = useStore((s) => s.loadState);
+  const stateLoaded = useStore((s) => s.stateLoaded);
   const [chatOpen, setChatOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const onboardingShownThisSessionRef = useRef(false);
@@ -83,6 +84,17 @@ function App() {
   if (showAdminPanel) {
     return (
       <AdminPanel onClose={() => setShowAdminPanel(false)} />
+    );
+  }
+
+  if (!stateLoaded) {
+    return (
+      <div className="flex h-screen items-center justify-center overflow-hidden bg-gradient-subtle dark:bg-gradient-subtle-dark">
+        <div
+          className="h-10 w-10 animate-spin rounded-full border-4 border-[#361D60]/30 border-t-[#361D60] dark:border-[#361D60]/30 dark:border-t-[#361D60]"
+          aria-label="Loading"
+        />
+      </div>
     );
   }
 
