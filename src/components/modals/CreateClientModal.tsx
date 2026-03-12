@@ -17,17 +17,16 @@ export function CreateClientModal({ isOpen, onClose }: CreateClientModalProps) {
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = name.trim();
-    if (!trimmed) {
-      setError('Name is required');
-      return;
-    }
     setError('');
-    const client = createClient(trimmed, description.trim() || undefined);
-    setSelectedClientId(client.id);
-    setName('');
-    setDescription('');
-    onClose();
+    try {
+      const client = createClient(name, description.trim() || undefined);
+      setSelectedClientId(client.id);
+      setName('');
+      setDescription('');
+      onClose();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Invalid input');
+    }
   };
 
   const handleClose = () => {

@@ -4,6 +4,8 @@ import { isSupabaseConfigured } from '@/lib/supabase';
 import { supabaseGetState, supabaseSaveState } from '@/lib/supabaseStorage';
 import { getDemoState } from '@/lib/demoData';
 import { getSession, signOut as authSignOut, fetchProfile, fetchOrganisationMembers } from '@/lib/auth';
+import { logAudit } from '@/lib/auditLog';
+import { validateCreateClient } from '@/lib/validation';
 import type { AppState, Client, Project, Journey, JourneyRow, Phase, CellComment, Opportunity, OpportunityStage, OpportunityTag, Job, Insight, PriorityLevel, Profile, OrganisationMember } from '@/types';
 import { generateId, now, extractDomainFromUrl, parseOpportunities, parseCustomerJobs } from '@/lib/utils';
 import { commentKey, parseCommentKey } from '@/lib/commentKeys';
@@ -504,19 +506,24 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   },
 
   createClient: (name: string, description?: string, website?: string) => {
-    const domain = website ? extractDomainFromUrl(website) : null;
+    const validation = validateCreateClient({ name, description, website });
+    if (!validation.success) throw new Error(validation.error);
+    const { name: validName, description: validDesc, website: validWebsite } = validation.data;
+    const domain = validWebsite ? extractDomainFromUrl(validWebsite) : null;
     const logoUrl = domain ? `https://logo.clearbit.com/${domain}` : undefined;
     const client: Client = {
       id: generateId(),
-      name,
-      description,
-      website: website?.trim() || undefined,
+      name: validName,
+      description: validDesc,
+      website: validWebsite,
       logoUrl,
       createdAt: now(),
       updatedAt: now(),
     };
     set((s) => ({ clients: [...s.clients, client] }));
     get().saveState();
+    const userId = get().profile?.id ?? (get().profile as { id?: string } | null)?.id;
+    logAudit('client.create', { clientId: client.id, name: client.name }, userId);
     return client;
   },
 
@@ -530,7 +537,10 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
   },
 
   deleteClient: (id: string) => {
-    const { projects, journeys, phases } = get();
+    const { clients, projects, journeys, phases, profile } = get();
+    const client = clients.find((c) => c.id === id);
+    const userId = profile?.id ?? (profile as { id?: string } | null)?.id;
+    logAudit('client.delete', { clientId: id, clientName: client?.name }, userId);
     const projectIds = projects.filter((p) => p.clientId === id).map((p) => p.id);
     const journeyIds = journeys.filter((j) => projectIds.includes(j.projectId)).map((j) => j.id);
     const phaseIdsToRemove = phases.filter((p) => journeyIds.includes(p.journeyId)).map((p) => p.id);

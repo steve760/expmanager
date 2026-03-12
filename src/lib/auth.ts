@@ -193,7 +193,12 @@ export async function updateProfileSuperAdmin(userId: string, isSuperAdmin: bool
     p_user_id: userId,
     p_is_super_admin: isSuperAdmin,
   });
-  if (!rpcError) return { error: null };
+  if (!rpcError) {
+    const { data: { session } } = await supabase.auth.getSession();
+    const { logAudit } = await import('@/lib/auditLog');
+    logAudit('profile.super_admin_update', { targetUserId: userId, isSuperAdmin }, session?.user?.id);
+    return { error: null };
+  }
   const { error } = await supabase.from('profiles').update({ is_super_admin: isSuperAdmin }).eq('id', userId);
   return { error: error ?? null };
 }
@@ -217,5 +222,7 @@ export async function inviteUser(params: {
   });
   const json = await res.json().catch(() => ({}));
   if (!res.ok) return { ok: false, error: json?.error ?? res.statusText };
+  const { logAudit } = await import('@/lib/auditLog');
+  logAudit('invite_user', { email: params.email, organisation_id: params.organisation_id, role: params.role }, session.user?.id);
   return { ok: true, error: null };
 }

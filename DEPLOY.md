@@ -50,11 +50,6 @@ Replace `YOUR_USERNAME` and `YOUR_REPO_NAME` with your GitHub username and repo 
 
 **Non-super-admin users:** A user who is not a super admin can only load and save data for **clients they’re a member of**. Add them via **Admin** → select client → add member (role **member** or **client_user**). Until they have at least one row in `organisation_members`, they’ll see no clients and nothing will persist to Supabase. Apply the migration `supabase/migrations/20250218000003_allow_members_upsert_clients.sql` so they can also save client metadata (name, etc.) for those clients.
 
-**OpenAI chatbot (secure, recommended):** The app calls **`/api/chat`** (a Vercel serverless function) so the API key stays on the server. In Vercel **Settings → Environment variables** add:
-- **`OPENAI_API_KEY`** (exact name, no `VITE_` prefix) = your OpenAI API key.  
-Optional: **`OPENAI_BASE_URL`** (default `https://api.openai.com/v1`), **`OPENAI_MODEL`** (default `gpt-4o-mini`). Enable **Production** (and Preview if you want). **Redeploy** so the function gets the key. The key is never sent to the browser. Without it, the chat falls back to a rule-based assistant.  
-For **local dev** only you can set **`VITE_OPENAI_API_KEY`** in `.env` to call OpenAI directly; production should use the server key only.
-
 ---
 
 ## 3. Use your custom domain (expmanager.app)

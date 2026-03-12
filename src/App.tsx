@@ -2,7 +2,6 @@ import { useEffect, useState, useRef } from 'react';
 import { BrowserRouter, Routes, Route, Navigate, useNavigate, useParams } from 'react-router-dom';
 import { SettingsDropdown } from '@/components/SettingsDropdown';
 import { PhaseDrawer } from '@/components/PhaseDrawer';
-import { ChatPanel } from '@/components/ChatPanel';
 import { EmptyState } from '@/components/EmptyState';
 import { HomeView } from '@/components/HomeView';
 import { ClientLayout } from '@/components/ClientLayout';
@@ -19,6 +18,7 @@ import { SignInPage } from '@/components/SignInPage';
 import { ForcePasswordReset } from '@/components/ForcePasswordReset';
 import { AdminPanel } from '@/components/AdminPanel';
 import { FirstRunIntroModal } from '@/components/FirstRunIntroModal';
+import { ErrorBoundary } from '@/components/ErrorBoundary';
 import { useStore } from '@/store';
 import { onAuthStateChange } from '@/lib/auth';
 import { isSupabaseConfigured } from '@/lib/supabase';
@@ -53,9 +53,11 @@ function DashboardRoute() {
 
 function App() {
   return (
-    <BrowserRouter>
-      <AppContent />
-    </BrowserRouter>
+    <ErrorBoundary>
+      <BrowserRouter>
+        <AppContent />
+      </BrowserRouter>
+    </ErrorBoundary>
   );
 }
 
@@ -152,7 +154,6 @@ function AppContent() {
   const setLoadError = useStore((s) => s.setLoadError);
   const loadState = useStore((s) => s.loadState);
   const stateLoaded = useStore((s) => s.stateLoaded);
-  const [chatOpen, setChatOpen] = useState(false);
   const [showOnboarding, setShowOnboarding] = useState(false);
   const onboardingShownThisSessionRef = useRef(false);
 
@@ -286,17 +287,6 @@ function AppContent() {
           setShowOnboarding(false);
         }}
       />
-      <ChatPanel isOpen={chatOpen} onClose={() => setChatOpen(false)} />
-
-      <button
-        onClick={() => setChatOpen(true)}
-        className="fixed bottom-6 right-6 z-30 flex h-14 w-14 items-center justify-center rounded-full bg-accent text-white shadow-elevated hover:bg-accent-hover focus:outline-none focus:ring-2 focus:ring-accent focus:ring-offset-2"
-        aria-label="Open chat"
-      >
-        <svg className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-        </svg>
-      </button>
     </div>
   );
 }
