@@ -9,7 +9,7 @@ import { OpportunityModal } from '@/components/OpportunityModal';
 import { DetailStackModal, type DetailStackEntry } from '@/components/DetailStackModal';
 import { InsightDetailPanel } from '@/components/InsightDetailPanel';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { LABEL_CLASS, ModalLabel, ModalSectionLabel, VALUE_CLASS } from '@/components/ui/ModalLabel';
+import { LABEL_CLASS } from '@/components/ui/ModalLabel';
 import { modalButtonDanger, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 
 const PRIORITY_LEVELS: PriorityLevel[] = ['High', 'Medium', 'Low'];
@@ -154,7 +154,6 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
   const createInsight = useStore((s) => s.createInsight);
   const updateInsight = useStore((s) => s.updateInsight);
   const deleteInsight = useStore((s) => s.deleteInsight);
-  const reorderInsights = useStore((s) => s.reorderInsights);
   const updateJob = useStore((s) => s.updateJob);
   const deleteJob = useStore((s) => s.deleteJob);
   const updateOpportunity = useStore((s) => s.updateOpportunity);
@@ -212,8 +211,8 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
   const [searchQuery, setSearchQuery] = useState('');
   const [filterPriority, setFilterPriority] = useState<string>('');
   const [filterLinkedJobs, setFilterLinkedJobs] = useState<'any' | 'has' | 'none'>('any');
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortAsc, setSortAsc] = useState(true);
+  const [sortColumn, _setSortColumn] = useState<SortColumn | null>(null);
+  const [sortAsc, _setSortAsc] = useState(true);
 
   const getLinkedJobs = useCallback(
     (insightId: string) =>
@@ -357,8 +356,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                       <InsightCard
                         key={insight.id}
                         insight={insight}
-                        getLinkedJobs={getLinkedJobs}
-                        onRowClick={() => setDetailStack([{ type: 'insight', id: insight.id, mode: 'view' }])}
+                        journeyLabel={getJourneyNameForInsight(insight.id, jobs, phases, journeys)}
+                        linkedJobs={getLinkedJobs(insight.id)}
+                        priority={(insight.priority ?? 'Medium') as PriorityLevel}
+                        onClick={() => setDetailStack([{ type: 'insight', id: insight.id, mode: 'view' }])}
                         onLinkedJobClick={onLinkedJobClick ?? ((jobId) => setDetailStack([{ type: 'job', id: jobId, mode: 'view' }]))}
                       />
                     ))}

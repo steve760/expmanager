@@ -208,9 +208,9 @@ export function JobsTab({ clientId }: { clientId: string }) {
   const [filterType, setFilterType] = useState<string>('');
   const [filterPriority, setFilterPriority] = useState<string>('');
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [sortColumn, setSortColumn] = useState<SortColumn | null>(null);
-  const [sortAsc, setSortAsc] = useState<boolean>(true);
-  const [manualOrder, setManualOrder] = useState<string[]>([]);
+  const [sortColumn, _setSortColumn] = useState<SortColumn | null>(null);
+  const [sortAsc, _setSortAsc] = useState<boolean>(true);
+  const [manualOrder, _setManualOrder] = useState<string[]>([]);
 
   const client = clients.find((c) => c.id === clientId);
   const clientProjects = projects.filter((p) => p.clientId === clientId);
