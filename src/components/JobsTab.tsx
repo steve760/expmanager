@@ -367,64 +367,64 @@ export function JobsTab({ clientId }: { clientId: string }) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex flex-shrink-0 flex-wrap items-end justify-between gap-4 border-b border-stone-200/80 bg-white px-6 py-4 dark:border-stone-600/80 dark:bg-stone-900">
-        <div className="flex flex-wrap items-end gap-4">
-          <span className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
-        <div>
-          <label htmlFor="filter-meta-journey" className={LABEL_CLASS}>Meta-Journey</label>
-          <select
-            id="filter-meta-journey"
-            value={filterMetaJourney}
-            onChange={(e) => setFilterMetaJourney(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
-          >
-            <option value="">Select</option>
-            {clientProjects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-journey" className={LABEL_CLASS}>Journey</label>
-          <select
-            id="filter-journey"
-            value={filterJourney}
-            onChange={(e) => setFilterJourney(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
-          >
-            <option value="">Select</option>
-            {clientJourneys.map((j) => (
-              <option key={j.id} value={j.id}>{j.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-type" className={LABEL_CLASS}>Type</label>
-          <select
-            id="filter-type"
-            value={filterType}
-            onChange={(e) => setFilterType(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
-          >
-            <option value="">Select</option>
-            {JOB_TAGS.map((tag) => (
-              <option key={tag} value={tag}>{tag}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-priority" className={LABEL_CLASS}>Priority</label>
-          <select
-            id="filter-priority"
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
-          >
-            <option value="">Select</option>
-            {PRIORITY_LEVELS.map((p) => (
-              <option key={p} value={p}>{p}</option>
-            ))}
-          </select>
-        </div>
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-meta-journey" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Meta-Journey</label>
+            <select
+              id="filter-meta-journey"
+              value={filterMetaJourney}
+              onChange={(e) => setFilterMetaJourney(e.target.value)}
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
+            >
+              <option value="">Select</option>
+              {clientProjects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-journey" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Journey</label>
+            <select
+              id="filter-journey"
+              value={filterJourney}
+              onChange={(e) => setFilterJourney(e.target.value)}
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
+            >
+              <option value="">Select</option>
+              {clientJourneys.map((j) => (
+                <option key={j.id} value={j.id}>{j.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-type" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Type</label>
+            <select
+              id="filter-type"
+              value={filterType}
+              onChange={(e) => setFilterType(e.target.value)}
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
+            >
+              <option value="">Select</option>
+              {JOB_TAGS.map((tag) => (
+                <option key={tag} value={tag}>{tag}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-priority" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Priority</label>
+            <select
+              id="filter-priority"
+              value={filterPriority}
+              onChange={(e) => setFilterPriority(e.target.value)}
+              className="rounded-lg border border-stone-300 bg-white px-3 py-2 text-sm text-stone-700 focus:border-accent focus:outline-none focus:ring-1 focus:ring-accent dark:border-stone-600 dark:bg-stone-800 dark:text-stone-200"
+            >
+              <option value="">Select</option>
+              {PRIORITY_LEVELS.map((p) => (
+                <option key={p} value={p}>{p}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <input

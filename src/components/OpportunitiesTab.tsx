@@ -346,78 +346,78 @@ export function OpportunitiesTab({ clientId }: { clientId: string }) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex flex-shrink-0 flex-wrap items-end justify-between gap-3 border-b border-stone-200/80 bg-white px-6 py-4 dark:border-stone-600/80 dark:bg-stone-900">
-        <div className="flex flex-wrap items-end gap-3">
-          <span className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
-        <div>
-          <label htmlFor="filter-project" className={LABEL_CLASS}>Meta-Journey</label>
-          <select
-            id="filter-project"
-            value={filterProject}
-            onChange={(e) => setFilterProject(e.target.value)}
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-          >
-            <option value="">Select</option>
-            {clientProjects.map((p) => (
-              <option key={p.id} value={p.id}>{p.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-journey" className={LABEL_CLASS}>Journey</label>
-          <select
-            id="filter-journey"
-            value={filterJourney}
-            onChange={(e) => setFilterJourney(e.target.value)}
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-          >
-            <option value="">Select</option>
-            {clientJourneys.map((j) => (
-              <option key={j.id} value={j.id}>{j.name}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-phase" className={LABEL_CLASS}>Phase</label>
-          <select
-            id="filter-phase"
-            value={filterPhase}
-            onChange={(e) => setFilterPhase(e.target.value)}
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-          >
-            <option value="">Select</option>
-            {clientPhases.map((p) => (
-              <option key={p.id} value={p.id}>{p.title || 'Untitled'}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-stage" className={LABEL_CLASS}>Stage</label>
-          <select
-            id="filter-stage"
-            value={filterStage}
-            onChange={(e) => setFilterStage(e.target.value)}
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-          >
-            <option value="">Select</option>
-            {OPPORTUNITY_STAGES.map((s) => (
-              <option key={s} value={s}>{s}</option>
-            ))}
-          </select>
-        </div>
-        <div>
-          <label htmlFor="filter-priority" className={LABEL_CLASS}>Priority</label>
-          <select
-            id="filter-priority"
-            value={filterPriority}
-            onChange={(e) => setFilterPriority(e.target.value)}
-            className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-          >
-            <option value="">Select</option>
-            {OPPORTUNITY_TAGS.map((t) => (
-              <option key={t} value={t}>{t}</option>
-            ))}
-          </select>
-        </div>
+        <div className="flex flex-wrap items-center gap-3">
+          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-project" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Meta-Journey</label>
+            <select
+              id="filter-project"
+              value={filterProject}
+              onChange={(e) => setFilterProject(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            >
+              <option value="">Select</option>
+              {clientProjects.map((p) => (
+                <option key={p.id} value={p.id}>{p.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-journey" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Journey</label>
+            <select
+              id="filter-journey"
+              value={filterJourney}
+              onChange={(e) => setFilterJourney(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            >
+              <option value="">Select</option>
+              {clientJourneys.map((j) => (
+                <option key={j.id} value={j.id}>{j.name}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-phase" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Phase</label>
+            <select
+              id="filter-phase"
+              value={filterPhase}
+              onChange={(e) => setFilterPhase(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            >
+              <option value="">Select</option>
+              {clientPhases.map((p) => (
+                <option key={p.id} value={p.id}>{p.title || 'Untitled'}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-stage" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Stage</label>
+            <select
+              id="filter-stage"
+              value={filterStage}
+              onChange={(e) => setFilterStage(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            >
+              <option value="">Select</option>
+              {OPPORTUNITY_STAGES.map((s) => (
+                <option key={s} value={s}>{s}</option>
+              ))}
+            </select>
+          </div>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-priority" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Priority</label>
+            <select
+              id="filter-priority"
+              value={filterPriority}
+              onChange={(e) => setFilterPriority(e.target.value)}
+              className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            >
+              <option value="">Select</option>
+              {OPPORTUNITY_TAGS.map((t) => (
+                <option key={t} value={t}>{t}</option>
+              ))}
+            </select>
+          </div>
         </div>
         <div className="flex flex-wrap items-end gap-3">
           <input

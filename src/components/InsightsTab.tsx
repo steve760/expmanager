@@ -285,10 +285,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
       <div className="flex flex-shrink-0 flex-wrap items-end justify-between gap-4 border-b border-stone-200/80 bg-white px-6 py-4 dark:border-stone-600/80 dark:bg-stone-900">
-        <div className="flex flex-wrap items-end gap-4">
-          <span className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
-          <div>
-            <label htmlFor="filter-priority" className={LABEL_CLASS}>Priority</label>
+        <div className="flex flex-wrap items-center gap-4">
+          <span className="text-sm font-medium text-stone-700 dark:text-stone-300">Filter by:</span>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-priority" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Priority</label>
             <select
               id="filter-priority"
               value={filterPriority}
@@ -301,8 +301,8 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
               ))}
             </select>
           </div>
-          <div>
-            <label htmlFor="filter-linked-jobs" className={LABEL_CLASS}>Linked jobs</label>
+          <div className="flex items-center gap-2">
+            <label htmlFor="filter-linked-jobs" className={`shrink-0 ${LABEL_CLASS.replace('block ', '')}`}>Linked jobs</label>
             <select
               id="filter-linked-jobs"
               value={filterLinkedJobs}

@@ -283,13 +283,13 @@ export function AltClientDashboard() {
                         </div>
                       )}
                     </button>
-                    <div className="mt-3 flex flex-wrap gap-2">
+                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
                       {projectJourneys.map((j) => (
                         <button
                           key={j.id}
                           type="button"
                           onClick={() => { if (client) navigate(`/clients/${client.id}/journeys/${j.id}`); }}
-                          className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
+                          className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25 text-left"
                         >
                           {j.name}
                         </button>
@@ -322,8 +322,8 @@ export function AltClientDashboard() {
                 {filterOppPriorityOnly ? 'Priority' : 'All'}
               </span>
               </button>
-              <div>
-                <label htmlFor="filter-opp-project" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="filter-opp-project" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
                 <select
                   id="filter-opp-project"
                   value={filterOppProject}
@@ -336,8 +336,8 @@ export function AltClientDashboard() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="filter-opp-journey" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="filter-opp-journey" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
                 <select
                   id="filter-opp-journey"
                   value={filterOppJourney}
@@ -350,8 +350,8 @@ export function AltClientDashboard() {
                   ))}
                 </select>
               </div>
-              <div>
-                <label htmlFor="filter-opp-priority" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Priority</label>
+              <div className="flex items-center gap-2">
+                <label htmlFor="filter-opp-priority" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Priority</label>
                 <select
                   id="filter-opp-priority"
                   value={filterOppPriority}
@@ -451,8 +451,8 @@ export function AltClientDashboard() {
                 {filterJobPriorityOnly ? 'Priority' : 'All'}
               </span>
             </button>
-            <div>
-              <label htmlFor="filter-job-type" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Type</label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-job-type" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Type</label>
               <select
                 id="filter-job-type"
                 value={filterJobType}
@@ -465,8 +465,8 @@ export function AltClientDashboard() {
                 ))}
               </select>
             </div>
-            <div>
-              <label htmlFor="filter-job-project" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-job-project" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
               <select
                 id="filter-job-project"
                 value={filterProject}
@@ -479,8 +479,8 @@ export function AltClientDashboard() {
                 ))}
               </select>
             </div>
-            <div>
-              <label htmlFor="filter-job-journey" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
+            <div className="flex items-center gap-2">
+              <label htmlFor="filter-job-journey" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
               <select
                 id="filter-job-journey"
                 value={filterJourney}

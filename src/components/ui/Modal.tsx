@@ -54,7 +54,7 @@ export function Modal({ isOpen, onClose, title, children, footer, maxWidth = 'ma
               </button>
             )}
             <div className="flex min-w-0 flex-1 justify-start overflow-hidden">
-              <h2 id="modal-title" className="min-w-0 flex-1 truncate !text-left text-lg font-semibold text-stone-900 dark:text-stone-100">
+              <h2 id="modal-title" className="min-w-0 flex-1 break-words text-left text-lg font-semibold text-stone-900 dark:text-stone-100">
                 {title}
               </h2>
             </div>

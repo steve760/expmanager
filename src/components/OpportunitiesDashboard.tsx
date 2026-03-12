@@ -344,7 +344,7 @@ export function OpportunitiesDashboard() {
         </div>
       </div>
 
-      <div className="flex flex-shrink-0 flex-wrap items-end gap-3 border-b border-stone-200/80 bg-stone-50/50 px-6 py-3 dark:border-stone-600/80 dark:bg-stone-800/30">
+      <div className="flex flex-shrink-0 flex-wrap items-center gap-3 border-b border-stone-200/80 bg-stone-50/50 px-6 py-3 dark:border-stone-600/80 dark:bg-stone-800/30">
         <input
           type="search"
           placeholder="Search by name or description..."
@@ -352,8 +352,8 @@ export function OpportunitiesDashboard() {
           onChange={(e) => setSearch(e.target.value)}
           className="rounded-xl border border-stone-200 bg-white px-3 py-2 text-sm focus:border-accent focus:outline-none focus:ring-2 focus:ring-accent/20 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
         />
-        <div>
-          <label htmlFor="filter-project" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-project" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Meta-Journey</label>
           <select
             id="filter-project"
             value={filterProject}
@@ -366,8 +366,8 @@ export function OpportunitiesDashboard() {
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="filter-journey" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-journey" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Journey</label>
           <select
             id="filter-journey"
             value={filterJourney}
@@ -380,8 +380,8 @@ export function OpportunitiesDashboard() {
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="filter-phase" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Phase</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-phase" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Phase</label>
           <select
             id="filter-phase"
             value={filterPhase}
@@ -394,8 +394,8 @@ export function OpportunitiesDashboard() {
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="filter-stage" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Stage</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-stage" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Stage</label>
           <select
             id="filter-stage"
             value={filterStage}
@@ -408,8 +408,8 @@ export function OpportunitiesDashboard() {
             ))}
           </select>
         </div>
-        <div>
-          <label htmlFor="filter-priority" className="mb-1 block text-xs font-medium text-stone-500 dark:text-stone-400">Priority</label>
+        <div className="flex items-center gap-2">
+          <label htmlFor="filter-priority" className="shrink-0 text-xs font-medium text-stone-500 dark:text-stone-400">Priority</label>
           <select
             id="filter-priority"
             value={filterPriority}

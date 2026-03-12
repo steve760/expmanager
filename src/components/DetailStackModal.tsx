@@ -68,7 +68,7 @@ export function DetailStackModal({
             <span className="w-[52px] shrink-0" />
           )}
           <div className="flex min-w-0 flex-1 justify-start overflow-hidden">
-            <h2 id="stack-modal-title" className="min-w-0 flex-1 truncate !text-left text-lg font-semibold text-stone-900 dark:text-stone-100">
+            <h2 id="stack-modal-title" className="min-w-0 flex-1 break-words text-left text-lg font-semibold text-stone-900 dark:text-stone-100">
               {getTitle(current)}
             </h2>
           </div>

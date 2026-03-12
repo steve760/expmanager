@@ -49,7 +49,7 @@ export function ProjectJourneysView() {
           Add journey
         </button>
       </div>
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
         {projectJourneys.map((journey) => {
           const journeyPhases = phases.filter((p) => p.journeyId === journey.id);
           const phaseCount = journeyPhases.length;

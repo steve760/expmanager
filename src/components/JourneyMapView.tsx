@@ -67,7 +67,7 @@ function getOrderedRows(journey: Journey | null): RowDef[] {
 function parseList(value: string): string[] {
   if (!value || !value.trim()) return [];
   return value
-    .split(/\n|;|•/)
+    .split(/\n|;|•|,/)
     .map((s) => s.trim())
     .filter(Boolean);
 }
@@ -104,7 +104,7 @@ function SortablePhaseHeader({
       ref={setNodeRef}
       style={style}
       className={`
-        relative min-w-[240px] max-w-[300px] border-b border-r border-stone-200 px-0 align-top
+        relative min-w-0 border-b border-r border-stone-200 px-0 align-top
         dark:border-stone-500
         ${isSelected ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-stone-50 dark:bg-stone-700'}
         ${isDragging ? 'opacity-90 shadow-elevated dark:shadow-elevated-dark' : ''}
@@ -297,7 +297,7 @@ function TableCell({
       ref={cellRef}
       onClick={asOpportunities || asDocuments || asPhaseHealth ? undefined : onCellClick}
       className={`
-        group relative min-w-[240px] max-w-[300px] min-h-[4.5rem] select-text border-b border-r border-stone-200 px-4 py-6 align-top
+        group relative min-w-0 min-h-[4.5rem] select-text border-b border-r border-stone-200 px-4 py-6 align-top
         transition-colors hover:bg-warm-50/50 dark:border-stone-600 dark:hover:bg-stone-800/50
         ${showOverlay ? 'bg-blue-50 dark:bg-blue-900/30' : 'bg-white dark:bg-stone-800'}
         ${hasComment && !asOpportunities && !asDocuments && !asPhaseHealth ? 'border-r-2 border-r-green-400' : ''}
@@ -643,7 +643,13 @@ export function JourneyMapView() {
         {/* Journey map table - min-h-0 needed for flex child to scroll; overflow on single container for sticky */}
         <div className="flex min-h-0 flex-1 flex-col p-8" style={{ direction: 'ltr' }}>
           <div id="journey-map-print-area" className="min-h-0 flex-1 overflow-auto rounded-2xl border border-stone-200 bg-warm-50/50 dark:border-stone-600 dark:bg-stone-900/50">
-            <table className="min-w-max border-collapse bg-white dark:bg-stone-800" style={{ width: 'max-content' }}>
+            <table className="w-full min-w-0 border-collapse bg-white dark:bg-stone-800" style={{ tableLayout: 'fixed' }}>
+              <colgroup>
+                <col style={{ width: 'clamp(140px, 12%, 200px)' }} />
+                {phases.map((phase) => (
+                  <col key={phase.id} style={{ width: phases.length ? `${88 / phases.length}%` : undefined }} />
+                ))}
+              </colgroup>
               <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -651,7 +657,7 @@ export function JourneyMapView() {
               >
               <thead>
                 <tr>
-                  <th className="sticky left-0 z-30 w-[200px] min-w-[200px] min-h-[4.5rem] border-b border-r border-stone-200 bg-stone-50 px-5 py-6 text-left text-sm font-medium text-stone-700 shadow-[8px_0_12px_-4px_rgba(0,0,0,0.15),4px_0_20px_0_rgba(0,0,0,0.03)] dark:border-stone-500 dark:bg-stone-700 dark:text-stone-300 dark:shadow-[8px_0_12px_-4px_rgba(0,0,0,0.5),4px_0_24px_0_rgba(139,92,246,0.12)]">
+                  <th className="sticky left-0 z-30 min-w-0 min-h-[4.5rem] border-b border-r border-stone-200 bg-stone-50 px-5 py-6 text-left text-sm font-medium text-stone-700 shadow-[8px_0_12px_-4px_rgba(0,0,0,0.15),4px_0_20px_0_rgba(0,0,0,0.03)] dark:border-stone-500 dark:bg-stone-700 dark:text-stone-300 dark:shadow-[8px_0_12px_-4px_rgba(0,0,0,0.5),4px_0_24px_0_rgba(139,92,246,0.12)]">
                     Phase
                   </th>
                   <SortableContext
