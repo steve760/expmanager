@@ -704,7 +704,6 @@ export function JobsTab({ clientId }: { clientId: string }) {
                   Delete
                 </button>
                 <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }} className={`flex-1 ${modalButtonSecondary}`}>
->>>>>>> 8050142 (Modal and UI polish: left-align titles, reduce radius, readability, remove duplicates)
                   Edit
                 </button>
                 <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
