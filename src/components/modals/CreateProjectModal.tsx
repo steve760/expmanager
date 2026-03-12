@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Modal } from '@/components/ui/Modal';
+import { Modal, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 import { ModalLabel } from '@/components/ui/ModalLabel';
 import { useStore } from '@/store';
 
@@ -53,18 +53,14 @@ export function CreateProjectModal({ isOpen, onClose }: CreateProjectModalProps)
       title="Create Meta-Journey"
       footer={
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={handleClose}
-            className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-          >
+          <button type="button" onClick={handleClose} className={`flex-1 ${modalButtonSecondary}`}>
             Cancel
           </button>
           <button
             type="submit"
             form="create-project-form"
             disabled={!name.trim() || !clientId}
-            className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-semibold text-white shadow-soft transition-all duration-200 hover:bg-accent-hover hover:shadow-glow disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:shadow-none dark:hover:shadow-glow-dark"
+            className={`flex-1 ${modalButtonPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
           >
             Save
           </button>

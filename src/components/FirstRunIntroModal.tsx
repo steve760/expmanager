@@ -1,4 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
+import { modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 
 const STEPS = [
   {
@@ -103,12 +104,12 @@ export function FirstRunIntroModal({ isOpen, onClose, onFinish }: FirstRunIntroM
         className="relative flex max-h-[90vh] w-full max-w-md flex-col overflow-hidden rounded-2xl bg-white shadow-elevated dark:bg-stone-800 dark:shadow-elevated-dark"
         onClick={(e) => e.stopPropagation()}
       >
-        <header className="flex shrink-0 items-center justify-between gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-4 dark:border-[#2d1648] dark:bg-[#361D60]">
-          <span className="text-sm text-white/80">Step {step} of {STEPS.length}</span>
+        <header className="flex shrink-0 items-center justify-between gap-3 bg-stone-100 px-6 py-4 dark:bg-stone-800">
+          <span className="text-sm font-medium text-stone-600 dark:text-stone-400">Step {step} of {STEPS.length}</span>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-lg p-2 text-white/80 hover:bg-white/10 hover:text-white"
+            className="rounded-lg p-2 text-stone-500 hover:bg-stone-200 hover:text-stone-700 dark:hover:bg-stone-600 dark:hover:text-stone-200"
             aria-label="Close"
           >
             <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -116,6 +117,7 @@ export function FirstRunIntroModal({ isOpen, onClose, onFinish }: FirstRunIntroM
             </svg>
           </button>
         </header>
+        <hr className="border-0 border-t border-stone-200 dark:border-stone-600" />
         <div className="min-h-0 flex-1 overflow-y-auto p-6">
           <h2 id="first-run-title" className="text-xl font-semibold text-stone-900 dark:text-stone-100">
             {stepInfo.title}
@@ -124,21 +126,17 @@ export function FirstRunIntroModal({ isOpen, onClose, onFinish }: FirstRunIntroM
             {stepInfo.body}
           </p>
         </div>
-        <footer className="shrink-0 border-t border-stone-300 bg-[#E6E7E9] px-6 py-4 dark:border-stone-600 dark:bg-stone-700">
+        <footer className="shrink-0 border-t border-stone-200 bg-stone-50 px-6 py-4 dark:border-stone-600 dark:bg-stone-800/80">
           <div className="flex gap-3">
             <button
               type="button"
               onClick={handleBack}
               disabled={isFirst}
-              className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 disabled:cursor-not-allowed disabled:opacity-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+              className={`flex-1 ${modalButtonSecondary} disabled:cursor-not-allowed disabled:opacity-50`}
             >
               Back
             </button>
-            <button
-              type="button"
-              onClick={handleNext}
-              className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-semibold text-white shadow-soft transition-all duration-200 hover:bg-accent-hover hover:shadow-glow dark:hover:shadow-glow-dark"
-            >
+            <button type="button" onClick={handleNext} className={`flex-1 ${modalButtonPrimary}`}>
               {isLast ? 'Finish' : 'Next'}
             </button>
           </div>

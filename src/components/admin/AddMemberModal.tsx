@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import type { Client, Profile } from '@/types';
 import { addOrganisationMember } from '@/lib/auth';
+import { Modal, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 
 type Role = 'admin' | 'member' | 'client_user';
 
@@ -38,71 +39,68 @@ export function AddMemberModal({ user, clients, existingOrgIds, allowedRoles, on
   };
 
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 p-4" onClick={onClose}>
-      <div
-        className="w-full max-w-md rounded-2xl border border-stone-200 bg-white p-6 shadow-xl dark:border-stone-600 dark:bg-stone-800"
-        onClick={(e) => e.stopPropagation()}
-      >
-        <h3 className="mb-4 text-lg font-semibold text-stone-900 dark:text-stone-100">Add to client</h3>
-        <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
-          Add <strong>{user.email ?? user.full_name ?? user.id}</strong> to a client.
-        </p>
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label htmlFor="add-client" className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Client
-            </label>
-            <select
-              id="add-client"
-              value={clientId}
-              onChange={(e) => setClientId(e.target.value)}
-              className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2 text-stone-900 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-              required
-            >
-              <option value="">Select client</option>
-              {availableClients.map((c) => (
-                <option key={c.id} value={c.id}>
-                  {c.name}
-                </option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label htmlFor="add-role" className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
-              Role
-            </label>
-            <select
-              id="add-role"
-              value={role}
-              onChange={(e) => setRole(e.target.value as Role)}
-              className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2 text-stone-900 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
-            >
-              {allowedRoles.map((r) => (
-                <option key={r} value={r}>
-                  {r === 'admin' ? 'ClientAdmin' : r === 'member' ? 'User' : 'ClientUser'}
-                </option>
-              ))}
-            </select>
-          </div>
-          {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-          <div className="flex gap-2 justify-end">
-            <button
-              type="button"
-              onClick={onClose}
-              className="rounded-xl border border-stone-300 px-4 py-2 text-stone-700 dark:border-stone-600 dark:text-stone-300"
-            >
-              Cancel
-            </button>
-            <button
-              type="submit"
-              disabled={loading || !clientId}
-              className="rounded-xl bg-[#361D60] px-4 py-2 text-white hover:bg-[#4A2878] disabled:opacity-50"
-            >
-              {loading ? 'Adding…' : 'Add'}
-            </button>
-          </div>
-        </form>
-      </div>
-    </div>
+    <Modal
+      isOpen={true}
+      onClose={onClose}
+      title="Add to client"
+      footer={
+        <div className="flex gap-3">
+          <button type="button" onClick={onClose} className={modalButtonSecondary}>
+            Cancel
+          </button>
+          <button
+            type="submit"
+            form="add-member-form"
+            disabled={loading || !clientId}
+            className={`${modalButtonPrimary} disabled:opacity-50 disabled:cursor-not-allowed`}
+          >
+            {loading ? 'Adding…' : 'Add'}
+          </button>
+        </div>
+      }
+    >
+      <p className="mb-4 text-sm text-stone-600 dark:text-stone-400">
+        Add <strong>{user.email ?? user.full_name ?? user.id}</strong> to a client.
+      </p>
+      <form id="add-member-form" onSubmit={handleSubmit} className="space-y-4">
+        <div>
+          <label htmlFor="add-client" className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+            Client
+          </label>
+          <select
+            id="add-client"
+            value={clientId}
+            onChange={(e) => setClientId(e.target.value)}
+            className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2 text-stone-900 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+            required
+          >
+            <option value="">Select client</option>
+            {availableClients.map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.name}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label htmlFor="add-role" className="mb-1 block text-sm font-medium text-stone-700 dark:text-stone-300">
+            Role
+          </label>
+          <select
+            id="add-role"
+            value={role}
+            onChange={(e) => setRole(e.target.value as Role)}
+            className="w-full rounded-xl border border-stone-300 bg-white px-4 py-2 text-stone-900 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-100"
+          >
+            {allowedRoles.map((r) => (
+              <option key={r} value={r}>
+                {r === 'admin' ? 'ClientAdmin' : r === 'member' ? 'User' : 'ClientUser'}
+              </option>
+            ))}
+          </select>
+        </div>
+        {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
+      </form>
+    </Modal>
   );
 }

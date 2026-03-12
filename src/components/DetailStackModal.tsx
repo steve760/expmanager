@@ -1,4 +1,5 @@
 import { ReactNode } from 'react';
+import { modalButtonPrimary } from '@/components/ui/Modal';
 
 export type DetailStackEntry =
   | { type: 'job'; id: string; mode: 'view' | 'edit' }
@@ -46,16 +47,16 @@ export function DetailStackModal({
         aria-hidden="true"
       />
       <div
-        className={`relative z-10 flex max-h-[90vh] w-full flex-col ${maxWidth} rounded-2xl bg-white shadow-elevated dark:bg-stone-800 dark:shadow-elevated-dark animate-fade-in`}
+        className={`relative z-10 flex max-h-[90vh] w-full flex-col overflow-hidden rounded-xl border border-stone-200 bg-white shadow-elevated dark:border-stone-600 dark:bg-stone-800 dark:shadow-elevated-dark animate-fade-in ${maxWidth}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header: Back | Title | Close — primary purple */}
-        <header className="flex shrink-0 items-center gap-3 border-b border-[#2d1648] bg-[#361D60] px-6 py-4 dark:border-[#2d1648] dark:bg-[#361D60]">
+        {/* Header: grey background, then HR */}
+        <header className="flex shrink-0 items-center justify-start gap-3 rounded-t-xl bg-stone-100 px-6 py-4 dark:bg-stone-800">
           {canGoBack ? (
             <button
               type="button"
               onClick={onBack}
-              className="flex items-center gap-1.5 rounded-lg border border-white/30 px-3 py-2 text-sm font-medium text-white hover:bg-white/10"
+              className="flex shrink-0 items-center gap-1.5 rounded-lg p-2 text-stone-600 hover:bg-stone-200 hover:text-stone-900 dark:text-stone-300 dark:hover:bg-stone-600 dark:hover:text-stone-100"
               aria-label="Back"
             >
               <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
@@ -64,19 +65,22 @@ export function DetailStackModal({
               Back
             </button>
           ) : (
-            <span className="w-[52px]" />
+            <span className="w-[52px] shrink-0" />
           )}
-          <h2 id="stack-modal-title" className="min-w-0 flex-1 truncate text-xl font-semibold text-white">
-            {getTitle(current)}
-          </h2>
+          <div className="flex min-w-0 flex-1 justify-start overflow-hidden">
+            <h2 id="stack-modal-title" className="min-w-0 flex-1 truncate !text-left text-lg font-semibold text-stone-900 dark:text-stone-100">
+              {getTitle(current)}
+            </h2>
+          </div>
           <button
             type="button"
             onClick={onClose}
-            className="rounded-xl bg-white px-4 py-2.5 font-medium text-[#361D60] hover:bg-white/90"
+            className={`shrink-0 ${modalButtonPrimary}`}
           >
             Close
           </button>
         </header>
+        <hr className="border-0 border-t border-stone-200 dark:border-stone-600" />
 
         {/* Sliding panels — overflow-hidden on wrapper forces inner scroll region to be bounded */}
         <div className="min-h-0 flex-1 flex flex-col overflow-hidden">
@@ -108,9 +112,12 @@ export function DetailStackModal({
         </div>
 
         {footerContent != null && footerContent !== false && (
-          <footer className="shrink-0 border-t border-stone-300 bg-[#E6E7E9] px-6 py-4 dark:border-stone-600 dark:bg-stone-700">
-            {footerContent}
-          </footer>
+          <>
+            <hr className="border-0 border-t border-stone-200 dark:border-stone-600" />
+            <footer className="shrink-0 bg-stone-50 px-6 py-4 dark:bg-stone-800/80">
+              {footerContent}
+            </footer>
+          </>
         )}
       </div>
     </div>

@@ -262,7 +262,13 @@ export const useStore = create<AppState & UIState & Actions>((set, get) => ({
     let state: AppState | null = null;
     if (isSupabaseConfigured()) {
       try {
-        state = await supabaseGetState();
+        const LOAD_TIMEOUT_MS = 12000;
+        state = await Promise.race([
+          supabaseGetState(),
+          new Promise<AppState | null>((_, reject) =>
+            setTimeout(() => reject(new Error('Load timed out')), LOAD_TIMEOUT_MS)
+          ),
+        ]);
       } catch (err) {
         const message = err instanceof Error ? err.message : String(err);
         console.warn('Supabase load failed, falling back to localStorage', err);

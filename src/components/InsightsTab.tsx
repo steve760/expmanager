@@ -1,19 +1,4 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useStore } from '@/store';
 import type { Insight, PriorityLevel } from '@/types';
 import { CreateInsightModal } from '@/components/modals/CreateInsightModal';
@@ -24,7 +9,8 @@ import { OpportunityModal } from '@/components/OpportunityModal';
 import { DetailStackModal, type DetailStackEntry } from '@/components/DetailStackModal';
 import { InsightDetailPanel } from '@/components/InsightDetailPanel';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
-import { LABEL_CLASS } from '@/components/ui/ModalLabel';
+import { LABEL_CLASS, ModalLabel, ModalSectionLabel, VALUE_CLASS } from '@/components/ui/ModalLabel';
+import { modalButtonDanger, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 
 const PRIORITY_LEVELS: PriorityLevel[] = ['High', 'Medium', 'Low'];
 
@@ -36,98 +22,125 @@ function truncateDescription(text: string | undefined, maxLen: number): string {
   return text.slice(0, maxLen) + '…';
 }
 
+/** Format insight recency: relative for recent (e.g. "Updated 2 days ago"), short date for older (e.g. "Created 14 Mar 2025"). */
+function formatInsightRecency(insight: { createdAt: string; updatedAt: string }): string {
+  const updated = new Date(insight.updatedAt).getTime();
+  const created = new Date(insight.createdAt).getTime();
+  const isUpdated = updated > created + 60 * 1000;
+  const ref = isUpdated ? updated : created;
+  const label = isUpdated ? 'Updated' : 'Created';
+  const now = Date.now();
+  const diffMs = now - ref;
+  const diffDays = diffMs / (24 * 60 * 60 * 1000);
+
+  if (diffDays < 1) {
+    const diffHours = diffMs / (60 * 60 * 1000);
+    if (diffHours < 1) {
+      const diffMins = Math.round(diffMs / (60 * 1000));
+      if (diffMins < 1) return `${label} just now`;
+      return `${label} ${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+    }
+    const h = Math.round(diffHours);
+    return `${label} ${h} hour${h === 1 ? '' : 's'} ago`;
+  }
+  if (diffDays < 7) {
+    const d = Math.round(diffDays);
+    return `${label} ${d} day${d === 1 ? '' : 's'} ago`;
+  }
+
+  const d = new Date(ref);
+  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${label} ${dateStr}`;
+}
+
+/** Derive journey name for an insight from its linked jobs (first linked job's journey). */
+function getJourneyNameForInsight(
+  insightId: string,
+  jobs: { id: string; insightIds?: string[] }[],
+  phases: { id: string; journeyId: string; jobIds?: string[] }[],
+  journeys: { id: string; name: string }[]
+): string {
+  const linkedJob = jobs.find((j) => (j.insightIds ?? []).includes(insightId));
+  if (!linkedJob) return '';
+  const phase = phases.find((p) => (p.jobIds ?? []).includes(linkedJob.id));
+  if (!phase) return '';
+  const journey = journeys.find((j) => j.id === phase.journeyId);
+  return journey?.name ?? '';
+}
+
+function InsightCard({
+  insight,
+  journeyLabel,
+  linkedJobs,
+  priority,
+  onLinkedJobClick,
+  onClick,
+}: {
+  insight: Insight;
+  journeyLabel: string;
+  linkedJobs: { id: string; name: string }[];
+  priority: PriorityLevel;
+  onLinkedJobClick?: (jobId: string) => void;
+  onClick: () => void;
+}) {
+  const priorityStyles =
+    priority === 'High'
+      ? 'border-l-red-500 bg-red-500/5 dark:bg-red-500/10'
+      : priority === 'Medium'
+        ? 'border-l-amber-500 bg-amber-500/5 dark:bg-amber-500/10'
+        : 'border-l-stone-300 dark:border-l-stone-500 bg-stone-500/5 dark:bg-stone-500/10';
+  const evidence = truncateDescription(insight.description, 160);
+
+  return (
+    <article
+      onClick={onClick}
+      className={`group relative cursor-pointer rounded-lg border border-stone-200 bg-white p-4 text-left shadow-sm transition-all hover:border-stone-300 hover:shadow-md dark:border-stone-600 dark:bg-stone-800 dark:hover:border-stone-500 dark:hover:shadow-md ${priorityStyles} border-l-4`}
+    >
+      {journeyLabel ? (
+        <span className="mb-2 inline-block rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-600 dark:text-stone-300">
+          {journeyLabel}
+        </span>
+      ) : null}
+      <h3 className="mb-1.5 font-semibold text-stone-900 dark:text-stone-100">
+        {insight.title ?? '—'}
+      </h3>
+      <p className="mb-3 text-sm leading-snug text-stone-600 dark:text-stone-400">
+        {evidence}
+      </p>
+      {linkedJobs.length > 0 && (
+      <div className="flex flex-wrap gap-1.5">
+        {linkedJobs.map((j) =>
+          onLinkedJobClick ? (
+            <button
+              key={j.id}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onLinkedJobClick(j.id);
+              }}
+              className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-[#361D60]/20 dark:text-accent-light dark:hover:bg-[#361D60]/30"
+            >
+              {j.name}
+            </button>
+          ) : (
+            <span key={j.id} className="rounded-md bg-stone-100 px-2 py-0.5 text-xs text-stone-600 dark:bg-stone-600 dark:text-stone-300">
+              {j.name}
+            </span>
+          )
+        )}
+      </div>
+      )}
+      <p className="mt-2 text-xs text-stone-400 dark:text-stone-500">
+        {formatInsightRecency(insight)}
+      </p>
+    </article>
+  );
+}
+
 interface InsightsTabProps {
   clientId: string;
   /** Optional: when a linked job is clicked, call this (e.g. switch tab). If not provided, job opens in modal on this page. */
   onLinkedJobClick?: (jobId: string) => void;
-}
-
-function SortableInsightRow({
-  insight,
-  getLinkedJobs,
-  onRowClick,
-  onLinkedJobClick,
-}: {
-  insight: Insight;
-  getLinkedJobs: (id: string) => { id: string; name: string }[];
-  onRowClick: () => void;
-  onLinkedJobClick?: (jobId: string) => void;
-}) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: insight.id,
-  });
-  const style = { transform: CSS.Transform.toString(transform), transition };
-  const linked = getLinkedJobs(insight.id);
-
-  return (
-    <tr
-      ref={setNodeRef}
-      style={style}
-      onClick={onRowClick}
-      className={`cursor-pointer border-b border-stone-100 transition-colors hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800/60 ${
-        isDragging ? 'bg-stone-100 dark:bg-stone-800 opacity-90' : ''
-      }`}
-    >
-      <td className="w-10 px-2 py-3">
-        <div
-          {...attributes}
-          {...listeners}
-          onClick={(e) => e.stopPropagation()}
-          className="cursor-grab touch-none rounded p-1 text-stone-400 hover:bg-stone-200 hover:text-stone-600 active:cursor-grabbing dark:hover:bg-stone-600 dark:hover:text-stone-300"
-          aria-label="Drag to reorder"
-        >
-          <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-          </svg>
-        </div>
-      </td>
-      <td className="overflow-hidden px-4 py-3">
-        <span className="block truncate font-medium text-stone-900 dark:text-stone-100" title={insight.title ?? undefined}>{insight.title ?? '—'}</span>
-      </td>
-      <td className="overflow-hidden px-4 py-3">
-        <span className="block truncate text-stone-600 dark:text-stone-300" title={insight.description}>
-          {truncateDescription(insight.description, 80)}
-        </span>
-      </td>
-      <td className="overflow-hidden px-4 py-3">
-        <span
-          className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-            insight.priority === 'High'
-              ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200'
-              : insight.priority === 'Medium'
-                ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200'
-                : 'bg-stone-100 text-stone-700 dark:bg-stone-600 dark:text-stone-200'
-          }`}
-        >
-          {insight.priority ?? 'Medium'}
-        </span>
-      </td>
-      <td className="overflow-hidden px-4 py-3" onClick={(e) => e.stopPropagation()}>
-        {linked.length > 0 ? (
-          <div className="flex flex-wrap gap-1.5">
-            {linked.map((j) =>
-              onLinkedJobClick ? (
-                <button
-                  key={j.id}
-                  type="button"
-                  onClick={() => onLinkedJobClick(j.id)}
-                  className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-[#361D60]/20 dark:text-accent-light dark:hover:bg-[#361D60]/30"
-                >
-                  {j.name}
-                </button>
-              ) : (
-                <span key={j.id} className="text-stone-600 dark:text-stone-300">
-                  {j.name}
-                </span>
-              )
-            )}
-          </div>
-        ) : (
-          <span className="text-stone-400 dark:text-stone-500">—</span>
-        )}
-      </td>
-    </tr>
-  );
 }
 
 export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
@@ -261,49 +274,14 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
     return sorted;
   }, [filteredInsights, sortColumn, sortAsc, getLinkedJobs]);
 
-  const handleSort = useCallback((col: SortColumn) => {
-    setSortColumn((prev) => {
-      if (prev === col) {
-        setSortAsc((a) => !a);
-        return col;
-      }
-      setSortAsc(true);
-      return col;
-    });
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  const handleDragEnd = useCallback(
-    (event: DragEndEvent) => {
-      const { active, over } = event;
-      if (!over || active.id === over.id) return;
-      const ids = sortedInsights.map((i) => i.id);
-      const oldIndex = ids.indexOf(active.id as string);
-      const newIndex = ids.indexOf(over.id as string);
-      if (oldIndex === -1 || newIndex === -1) return;
-      const next = [...ids];
-      const [removed] = next.splice(oldIndex, 1);
-      next.splice(newIndex, 0, removed);
-      reorderInsights(clientId, next);
-    },
-    [sortedInsights, clientId, reorderInsights]
-  );
-
-  const Th = ({ column, label }: { column: SortColumn | null; label: string }) => (
-    <th
-      className="cursor-pointer select-none px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700/80"
-      onClick={() => column && handleSort(column)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        {sortColumn === column && <span className="text-accent">{sortAsc ? '↑' : '↓'}</span>}
-      </div>
-    </th>
-  );
+  const insightsByPriority = useMemo(() => {
+    const groups: Record<PriorityLevel, Insight[]> = { High: [], Medium: [], Low: [] };
+    for (const ins of sortedInsights) {
+      const p = (ins.priority ?? 'Medium') as PriorityLevel;
+      if (groups[p]) groups[p].push(ins);
+    }
+    return groups;
+  }, [sortedInsights]);
 
   return (
     <div className="flex flex-1 flex-col overflow-hidden">
@@ -365,29 +343,18 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-800">
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-              <table className="w-full table-fixed text-left text-sm">
-                <colgroup>
-                  <col style={{ width: '2.5rem' }} />
-                  <col style={{ width: 'calc((100% - 2.5rem) / 4)' }} />
-                  <col style={{ width: 'calc((100% - 2.5rem) / 4)' }} />
-                  <col style={{ width: 'calc((100% - 2.5rem) / 4)' }} />
-                  <col style={{ width: 'calc((100% - 2.5rem) / 4)' }} />
-                </colgroup>
-                <thead>
-                  <tr className="border-b border-stone-200 bg-stone-50 dark:border-stone-600 dark:bg-stone-800/80">
-                    <th className="w-10 px-2 py-3" aria-label="Reorder" />
-                    <Th column="title" label="Title" />
-                    <Th column="description" label="Description" />
-                    <Th column="priority" label="Priority" />
-                    <Th column="linkedJobs" label="Linked Jobs" />
-                  </tr>
-                </thead>
-                <tbody>
-                  <SortableContext items={sortedInsights.map((i) => i.id)} strategy={verticalListSortingStrategy}>
-                    {sortedInsights.map((insight) => (
-                      <SortableInsightRow
+          <div className="space-y-8">
+            {(['High', 'Medium', 'Low'] as const).map((priority) => {
+              const list = insightsByPriority[priority];
+              if (list.length === 0) return null;
+              return (
+                <section key={priority}>
+                  <h2 className="mb-3 text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                    {priority.toUpperCase()} PRIORITY ({list.length})
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {list.map((insight) => (
+                      <InsightCard
                         key={insight.id}
                         insight={insight}
                         getLinkedJobs={getLinkedJobs}
@@ -395,10 +362,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                         onLinkedJobClick={onLinkedJobClick ?? ((jobId) => setDetailStack([{ type: 'job', id: jobId, mode: 'view' }]))}
                       />
                     ))}
-                  </SortableContext>
-                </tbody>
-              </table>
-            </DndContext>
+                  </div>
+                </section>
+              );
+            })}
           </div>
         )}
       </div>
@@ -548,10 +515,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
             if (entry.type === 'insight') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form="edit-insight-form-stack" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form="edit-insight-form-stack" className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -561,10 +528,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
               const jobFormId = `edit-job-form-${entry.id}`;
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form={jobFormId} className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -573,10 +540,10 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
             if (entry.type === 'opportunity') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form="edit-opportunity-form" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form="edit-opportunity-form" className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -593,23 +560,24 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                 <button
                   type="button"
                   onClick={() => setDeleteInsightConfirm({ id: entry.id, name: insight?.title ?? 'this insight' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={switchCurrentToEdit}
-                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  className={`flex-1 ${modalButtonSecondary}`}
                 >
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>
             );
           }
+
           if (entry.type === 'job') {
             const job = jobs.find((j) => j.id === entry.id);
             return (
@@ -617,18 +585,18 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                 <button
                   type="button"
                   onClick={() => setDeleteJobConfirm({ id: entry.id, name: job?.name ?? 'this job' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={switchCurrentToEdit}
-                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  className={`flex-1 ${modalButtonSecondary}`}
                 >
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>
@@ -641,18 +609,18 @@ export function InsightsTab({ clientId, onLinkedJobClick }: InsightsTabProps) {
                 <button
                   type="button"
                   onClick={() => setDeleteOpportunityConfirm({ id: entry.id, name: opp?.name ?? 'this opportunity' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={switchCurrentToEdit}
-                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  className={`flex-1 ${modalButtonSecondary}`}
                 >
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>

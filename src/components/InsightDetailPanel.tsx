@@ -1,5 +1,6 @@
 import { useState } from 'react';
-import { ModalSectionLabel, ModalLabel, ViewOnlySection } from '@/components/ui/ModalLabel';
+import { modalButtonDanger, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
+import { ModalSectionLabel, ModalLabel, ViewOnlySection, VALUE_CLASS } from '@/components/ui/ModalLabel';
 import type { Insight, PriorityLevel } from '@/types';
 
 const PRIORITY_LEVELS: PriorityLevel[] = ['High', 'Medium', 'Low'];
@@ -44,19 +45,19 @@ export function InsightDetailPanel({
 
   return (
     <>
-      <div className="space-y-5">
+      <div className="space-y-6">
         <ViewOnlySection title="Content">
           <div className="space-y-4">
             <div>
               <ModalSectionLabel>Description</ModalSectionLabel>
-              <p className="whitespace-pre-wrap text-sm text-stone-800 dark:text-stone-200">
+              <p className={`whitespace-pre-wrap ${VALUE_CLASS}`}>
                 {insight.description || '—'}
               </p>
             </div>
             <div>
               <ModalSectionLabel>Priority</ModalSectionLabel>
               <span
-                className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                className={`inline-flex rounded-full px-2.5 py-1 text-xs font-medium ${
                   insight.priority === 'High'
                     ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200'
                     : insight.priority === 'Medium'
@@ -78,14 +79,14 @@ export function InsightDetailPanel({
                     key={j.id}
                     type="button"
                     onClick={() => onLinkedJobClick(j.id)}
-                    className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
+                    className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                   >
                     {j.name}
                   </button>
                 ) : (
                   <span
                     key={j.id}
-                    className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300"
+                    className="inline-block rounded-lg border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm leading-snug text-stone-700 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300"
                   >
                     {j.name}
                   </span>
@@ -98,20 +99,12 @@ export function InsightDetailPanel({
       {embedded && (onEdit || onDelete) && (
         <div className="mt-4 flex flex-wrap gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
           {onDelete && (
-            <button
-              type="button"
-              onClick={onDelete}
-              className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
-            >
+            <button type="button" onClick={onDelete} className={modalButtonDanger}>
               Delete
             </button>
           )}
           {onEdit && (
-            <button
-              type="button"
-              onClick={onEdit}
-              className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-            >
+            <button type="button" onClick={onEdit} className={modalButtonSecondary}>
               Edit
             </button>
           )}
@@ -184,10 +177,10 @@ function InsightEditForm({
       </form>
       {embedded && !hideFooter && onCancel && (
         <div className="mt-4 flex gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
-          <button type="button" onClick={onCancel} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+          <button type="button" onClick={onCancel} className={`flex-1 ${modalButtonSecondary}`}>
             Cancel
           </button>
-          <button type="submit" form="edit-insight-form-stack" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+          <button type="submit" form="edit-insight-form-stack" className={`flex-1 ${modalButtonPrimary}`}>
             Save
           </button>
         </div>

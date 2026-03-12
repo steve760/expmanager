@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react';
-import { Modal } from './Modal';
+import { Modal, modalButtonPrimary, modalButtonSecondary } from './Modal';
 
 interface ConfirmDialogProps {
   isOpen: boolean;
@@ -48,11 +48,7 @@ export function ConfirmDialog({
       title={title}
       footer={
         <div className="flex gap-3">
-          <button
-            type="button"
-            onClick={onClose}
-            className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-          >
+          <button type="button" onClick={onClose} className={`flex-1 ${modalButtonSecondary}`}>
             Cancel
           </button>
           <button
@@ -60,11 +56,11 @@ export function ConfirmDialog({
             type="button"
             onClick={handleConfirm}
             disabled={!canConfirm}
-            className={`flex-1 rounded-xl px-4 py-2.5 font-semibold text-white shadow-soft transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 ${
+            className={
               confirmVariant === 'danger'
-                ? 'bg-red-500 hover:bg-red-600 hover:shadow-[0_0_20px_-4px_rgba(239,68,68,0.3)] disabled:hover:bg-red-500'
-                : 'bg-accent hover:bg-accent-hover hover:shadow-glow dark:hover:shadow-glow-dark disabled:hover:bg-accent'
-            }`}
+                ? 'flex-1 rounded-xl px-4 py-2.5 font-semibold text-white shadow-soft transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50 bg-red-500 hover:bg-red-600 hover:shadow-[0_0_20px_-4px_rgba(239,68,68,0.3)] disabled:hover:bg-red-500'
+                : `flex-1 ${modalButtonPrimary} disabled:cursor-not-allowed disabled:opacity-50`
+            }
           >
             {confirmLabel}
           </button>

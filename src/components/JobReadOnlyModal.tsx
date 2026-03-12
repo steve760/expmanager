@@ -1,5 +1,6 @@
 import { Modal } from '@/components/ui/Modal';
-import { ModalSectionLabel, ViewOnlySection } from '@/components/ui/ModalLabel';
+import { modalButtonDanger, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
+import { ModalSectionLabel, ViewOnlySection, VALUE_CLASS } from '@/components/ui/ModalLabel';
 import type { CustomerJobItem, CustomerJobTag } from '@/types';
 
 export type JobPlacementDisplay = {
@@ -51,7 +52,7 @@ function FieldSection({ label, value }: { label: string; value: React.ReactNode 
   return (
     <div>
       <ModalSectionLabel>{label}</ModalSectionLabel>
-      <div className="text-sm text-stone-800 dark:text-stone-200">{value ?? '—'}</div>
+      <div className={VALUE_CLASS}>{value ?? '—'}</div>
     </div>
   );
 }
@@ -79,19 +80,18 @@ function JobReadOnlyContent({
   embedded?: boolean;
   hideEmbeddedFooter?: boolean;
 }) {
-  const jobName = job.name ?? job.text ?? '—';
   const j = job as unknown as { priority?: string; isPriority?: boolean };
   const priority = j.priority ?? (j.isPriority ? 'High' : 'Medium');
 
   const embeddedFooter = embedded && !hideEmbeddedFooter && (onEdit || onDelete) && (
     <div className="mt-4 flex flex-wrap gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
       {onDelete && (
-        <button type="button" onClick={onDelete} className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20">
+        <button type="button" onClick={onDelete} className={modalButtonDanger}>
           Delete
         </button>
       )}
       {onEdit && (
-        <button type="button" onClick={onEdit} className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+        <button type="button" onClick={onEdit} className={modalButtonSecondary}>
           Edit
         </button>
       )}
@@ -99,15 +99,14 @@ function JobReadOnlyContent({
   );
 
   const content = (
-    <div className="space-y-5">
+    <div className="space-y-6">
       <ViewOnlySection title="Overview">
-        <div className="space-y-3">
+        <div className="space-y-4">
           <div className="flex min-w-0 flex-wrap items-center gap-2">
-            <h3 className="text-lg font-semibold text-stone-900 dark:text-stone-100">{jobName}</h3>
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${jobTagStyle(job.tag)}`}>
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${jobTagStyle(job.tag)}`}>
               {job.tag}
             </span>
-            <span className={`rounded-full px-2 py-0.5 text-xs font-medium ${
+            <span className={`rounded-full px-2.5 py-1 text-xs font-medium ${
               priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200' :
               priority === 'Medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' :
               'bg-stone-100 text-stone-700 dark:bg-stone-600 dark:text-stone-200'
@@ -116,22 +115,24 @@ function JobReadOnlyContent({
             </span>
           </div>
           {job.placements && job.placements.length > 0 ? (
-            <div>
+            <div className="pt-1">
               <ModalSectionLabel>Assigned to</ModalSectionLabel>
-              <div className="space-y-1.5 text-sm text-stone-700 dark:text-stone-300">
+              <div className={`space-y-2 ${VALUE_CLASS}`}>
                 {job.placements.map((p, i) => (
-                  <div key={i} className="flex flex-wrap items-center gap-1">
+                  <div key={i} className="flex flex-wrap items-center gap-1.5">
                     <span className="font-medium">{p.projectName}</span>
-                    <span className="text-stone-400 dark:text-stone-500">›</span>
+                    <span className="text-stone-400 dark:text-stone-500" aria-hidden="true">›</span>
                     <span>{p.journeyName}</span>
-                    <span className="text-stone-400 dark:text-stone-500">›</span>
+                    <span className="text-stone-400 dark:text-stone-500" aria-hidden="true">›</span>
                     <span>{p.phaseTitle}</span>
                   </div>
                 ))}
               </div>
             </div>
           ) : (
-            <FieldSection label="Location" value={[job.projectName, job.journeyName, job.phaseTitle].filter(Boolean).join(' • ') || '—'} />
+            <div className="pt-1">
+              <FieldSection label="Location" value={[job.projectName, job.journeyName, job.phaseTitle].filter(Boolean).join(' • ') || '—'} />
+            </div>
           )}
         </div>
       </ViewOnlySection>
@@ -165,7 +166,7 @@ function JobReadOnlyContent({
 
       {(linkedInsights.length > 0 || linkedOpportunities.length > 0) && (
         <ViewOnlySection title="Links">
-          <div className="space-y-4">
+          <div className="space-y-5">
             {linkedInsights.length > 0 && (
               <div>
                 <ModalSectionLabel>Linked insights</ModalSectionLabel>
@@ -176,14 +177,14 @@ function JobReadOnlyContent({
                         key={ins.id}
                         type="button"
                         onClick={() => onInsightClick(ins)}
-                        className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
+                        className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                       >
                         {ins.title}
                       </button>
                     ) : (
                       <span
                         key={ins.id}
-                        className="rounded-lg border border-stone-200 bg-stone-50 px-3 py-1.5 text-sm text-stone-700 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300"
+                        className="inline-block rounded-lg border border-stone-200 bg-stone-50 px-4 py-2.5 text-sm leading-snug text-stone-700 dark:border-stone-600 dark:bg-stone-800 dark:text-stone-300"
                       >
                         {ins.title}
                       </span>
@@ -201,7 +202,7 @@ function JobReadOnlyContent({
                       key={opp.id}
                       type="button"
                       onClick={() => onOpportunityClick?.(opp)}
-                      className="rounded-lg border border-accent/30 bg-accent/10 px-3 py-1.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
+                      className="rounded-lg border border-accent/30 bg-accent/10 px-4 py-2.5 text-sm font-medium text-accent transition-colors hover:bg-accent/20 dark:border-[#361D60]/40 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                     >
                       {opp.name}
                     </button>
@@ -248,17 +249,17 @@ export function JobReadOnlyModal({ isOpen, onClose, job, onEdit, onDelete, linke
   const footer = (
     <div className="flex flex-wrap gap-3">
       {onDelete && (
-        <button type="button" onClick={onDelete} className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20">
+        <button type="button" onClick={onDelete} className={modalButtonDanger}>
           Delete
         </button>
       )}
       <div className="flex flex-1 gap-3 justify-end">
         {onEdit && (
-          <button type="button" onClick={onEdit} className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+          <button type="button" onClick={onEdit} className={modalButtonSecondary}>
             Edit
           </button>
         )}
-        <button type="button" onClick={onClose} className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+        <button type="button" onClick={onClose} className={modalButtonPrimary}>
           Close
         </button>
       </div>

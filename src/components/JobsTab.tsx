@@ -1,19 +1,4 @@
 import { useState, useMemo, useCallback } from 'react';
-import {
-  DndContext,
-  DragEndEvent,
-  PointerSensor,
-  KeyboardSensor,
-  useSensor,
-  useSensors,
-} from '@dnd-kit/core';
-import {
-  SortableContext,
-  useSortable,
-  verticalListSortingStrategy,
-  sortableKeyboardCoordinates,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
 import { useStore } from '@/store';
 import type { CustomerJobTag, Job, Opportunity, PriorityLevel } from '@/types';
 
@@ -24,6 +9,37 @@ function truncateDescription(text: string | undefined, maxLen: number): string {
   if (text.length <= maxLen) return text;
   return text.slice(0, maxLen) + '…';
 }
+
+/** Format job recency: relative for recent (e.g. "Updated 2 days ago"), short date for older (e.g. "Created 14 Mar 2025"). */
+function formatJobRecency(job: { createdAt: string; updatedAt: string }): string {
+  const updated = new Date(job.updatedAt).getTime();
+  const created = new Date(job.createdAt).getTime();
+  const isUpdated = updated > created + 60 * 1000;
+  const ref = isUpdated ? updated : created;
+  const label = isUpdated ? 'Updated' : 'Created';
+  const now = Date.now();
+  const diffMs = now - ref;
+  const diffDays = diffMs / (24 * 60 * 60 * 1000);
+
+  if (diffDays < 1) {
+    const diffHours = diffMs / (60 * 60 * 1000);
+    if (diffHours < 1) {
+      const diffMins = Math.round(diffMs / (60 * 1000));
+      if (diffMins < 1) return `${label} just now`;
+      return `${label} ${diffMins} min${diffMins === 1 ? '' : 's'} ago`;
+    }
+    const h = Math.round(diffHours);
+    return `${label} ${h} hour${h === 1 ? '' : 's'} ago`;
+  }
+  if (diffDays < 7) {
+    const d = Math.round(diffDays);
+    return `${label} ${d} day${d === 1 ? '' : 's'} ago`;
+  }
+
+  const d = new Date(ref);
+  const dateStr = d.toLocaleDateString('en-GB', { day: 'numeric', month: 'short', year: 'numeric' });
+  return `${label} ${dateStr}`;
+}
 import { LABEL_CLASS } from '@/components/ui/ModalLabel';
 import { JobReadOnlyModal } from '@/components/JobReadOnlyModal';
 import { JobModal } from '@/components/JobModal';
@@ -31,6 +47,7 @@ import { CreateJobModal } from '@/components/modals/CreateJobModal';
 import { OpportunityReadOnlyModal } from '@/components/OpportunityReadOnlyModal';
 import { OpportunityModal } from '@/components/OpportunityModal';
 import { DetailStackModal, type DetailStackEntry } from '@/components/DetailStackModal';
+import { modalButtonDanger, modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 import { InsightDetailPanel } from '@/components/InsightDetailPanel';
 import { ConfirmDialog } from '@/components/ui/ConfirmDialog';
 
@@ -80,134 +97,71 @@ function jobTagStyle(tag: CustomerJobTag): string {
   return 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200';
 }
 
-function SortableJobRow({
+function JobCard({
   job,
-  linked,
-  tagStyle,
-  onRowClick,
+  journeyLabel,
+  linkedOpportunities,
+  priority,
   onOpportunityClick,
+  onClick,
 }: {
   job: JobRow;
-  linked: Opportunity[];
-  tagStyle: string;
-  onRowClick: () => void;
+  journeyLabel: string;
+  linkedOpportunities: Opportunity[];
+  priority: PriorityLevel;
   onOpportunityClick: (o: Opportunity) => void;
+  onClick: () => void;
 }) {
-  const { attributes, listeners, setNodeRef, transform, transition, isDragging } = useSortable({
-    id: job.key,
-  });
-
-  const style = { transform: CSS.Transform.toString(transform), transition };
+  const priorityStyles =
+    priority === 'High'
+      ? 'border-l-red-500 bg-red-500/5 dark:bg-red-500/10'
+      : priority === 'Medium'
+        ? 'border-l-amber-500 bg-amber-500/5 dark:bg-amber-500/10'
+        : 'border-l-stone-300 dark:border-l-stone-500 bg-stone-500/5 dark:bg-stone-500/10';
+  const evidence = truncateDescription(job.description, 160);
 
   return (
-    <tr
-      ref={setNodeRef}
-      style={style}
-      onClick={onRowClick}
-      className={`cursor-pointer border-b border-stone-100 transition-colors hover:bg-stone-50 dark:border-stone-700 dark:hover:bg-stone-800/60 ${
-        isDragging ? 'bg-stone-100 dark:bg-stone-800 opacity-90' : ''
-      }`}
+    <article
+      onClick={onClick}
+      className={`group relative cursor-pointer rounded-lg border border-stone-200 bg-white p-4 text-left shadow-sm transition-all hover:border-stone-300 hover:shadow-md dark:border-stone-600 dark:bg-stone-800 dark:hover:border-stone-500 dark:hover:shadow-md ${priorityStyles} border-l-4`}
     >
-      <td className="w-10 px-2 py-3">
-        <div className="flex items-center gap-1">
-          <div
-            {...attributes}
-            {...listeners}
-            onClick={(e) => e.stopPropagation()}
-            className="cursor-grab touch-none rounded p-1 text-stone-400 hover:bg-stone-200 hover:text-stone-600 active:cursor-grabbing dark:hover:bg-stone-600 dark:hover:text-stone-300"
-            aria-label="Drag to reorder"
-          >
-            <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 8h16M4 16h16" />
-            </svg>
-          </div>
+      <div className="mb-2 flex flex-wrap items-center gap-2">
+        {journeyLabel ? (
+          <span className="inline-block rounded-full bg-stone-100 px-2.5 py-0.5 text-xs font-medium text-stone-600 dark:bg-stone-600 dark:text-stone-300">
+            {journeyLabel}
+          </span>
+        ) : null}
+        <span className={`inline-flex rounded-full px-2.5 py-0.5 text-xs font-medium ${jobTagStyle(job.tag)}`}>
+          {job.tag}
+        </span>
+      </div>
+      <h3 className="mb-1.5 font-semibold text-stone-900 dark:text-stone-100">
+        {job.name ?? '—'}
+      </h3>
+      <p className="mb-3 text-sm leading-snug text-stone-600 dark:text-stone-400">
+        {evidence}
+      </p>
+      {linkedOpportunities.length > 0 && (
+        <div className="flex flex-wrap gap-1.5">
+          {linkedOpportunities.map((o) => (
+            <button
+              key={o.id}
+              type="button"
+              onClick={(e) => {
+                e.stopPropagation();
+                onOpportunityClick(o);
+              }}
+              className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-[#361D60]/20 dark:text-accent-light dark:hover:bg-[#361D60]/30"
+            >
+              {o.name}
+            </button>
+          ))}
         </div>
-      </td>
-      <td className="px-4 py-3">
-        <span className="font-medium text-stone-900 dark:text-stone-100">{job.name ?? '—'}</span>
-      </td>
-      <td className="max-w-[200px] px-4 py-3">
-        <span className="text-stone-600 dark:text-stone-300" title={job.description}>
-          {truncateDescription(job.description, 80)}
-        </span>
-      </td>
-      <td className="px-4 py-3">
-        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${tagStyle}`}>{job.tag}</span>
-      </td>
-      <td className="px-4 py-3">
-        <span className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
-          job.priority === 'High' ? 'bg-red-100 text-red-800 dark:bg-red-900/60 dark:text-red-200' :
-          job.priority === 'Medium' ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/60 dark:text-amber-200' :
-          'bg-stone-100 text-stone-700 dark:bg-stone-600 dark:text-stone-200'
-        }`}>
-          {job.priority ?? 'Medium'}
-        </span>
-      </td>
-      <td className="max-w-[180px] px-4 py-3 text-stone-600 dark:text-stone-300">
-        {(job.projectNames?.length ?? 0) > 0 ? (
-          <span className="flex flex-wrap gap-1" title={job.projectNames?.join(', ')}>
-            {job.projectNames!.map((name) => (
-              <span key={name} className="inline-flex rounded-md bg-stone-100 px-1.5 py-0.5 text-xs dark:bg-stone-700">
-                {name}
-              </span>
-            ))}
-          </span>
-        ) : (
-          '—'
-        )}
-      </td>
-      <td className="max-w-[180px] px-4 py-3 text-stone-600 dark:text-stone-300">
-        {(job.journeyNames?.length ?? 0) > 0 ? (
-          <span className="flex flex-wrap gap-1" title={job.journeyNames?.join(', ')}>
-            {job.journeyNames!.map((name) => (
-              <span key={name} className="inline-flex rounded-md bg-stone-100 px-1.5 py-0.5 text-xs dark:bg-stone-700">
-                {name}
-              </span>
-            ))}
-          </span>
-        ) : (
-          '—'
-        )}
-      </td>
-      <td className="max-w-[180px] px-4 py-3 text-stone-600 dark:text-stone-300">
-        {(job.phaseTitles?.length ?? 0) > 0 ? (
-          <span className="flex flex-wrap gap-1" title={job.phaseTitles?.join(', ')}>
-            {job.phaseTitles!.map((title, i) => (
-              <span key={`${title}-${i}`} className="inline-flex rounded-md bg-stone-100 px-1.5 py-0.5 text-xs dark:bg-stone-700">
-                {title}
-              </span>
-            ))}
-          </span>
-        ) : (
-          '—'
-        )}
-      </td>
-      <td className="max-w-[160px] px-4 py-3">
-        <span className="line-clamp-2 text-stone-600 dark:text-stone-300">
-          {job.struggles && job.struggles.length > 0 ? job.struggles.join(', ') : '—'}
-        </span>
-      </td>
-      <td className="px-4 py-3" onClick={(e) => e.stopPropagation()}>
-        {linked.length > 0 ? (
-          <div className="flex flex-wrap gap-1">
-            {linked.map((o) => (
-              <button
-                key={o.id}
-                onClick={(e) => {
-                  e.stopPropagation();
-                  onOpportunityClick(o);
-                }}
-                className="rounded-md bg-accent/15 px-2 py-0.5 text-xs font-medium text-accent hover:bg-accent/25 dark:bg-[#361D60]/20 dark:text-accent-light dark:hover:bg-[#361D60]/30"
-              >
-                {o.name}
-              </button>
-            ))}
-          </div>
-        ) : (
-          <span className="text-stone-400 dark:text-stone-500">—</span>
-        )}
-      </td>
-    </tr>
+      )}
+      <p className="mt-2 text-xs text-stone-400 dark:text-stone-500">
+        {formatJobRecency(job)}
+      </p>
+    </article>
   );
 }
 
@@ -399,46 +353,14 @@ export function JobsTab({ clientId }: { clientId: string }) {
     return sorted;
   }, [filteredJobs, sortColumn, sortAsc, manualOrder, getLinkedOpportunities]);
 
-  const handleSort = useCallback((col: SortColumn) => {
-    setSortColumn((prev) => {
-      if (prev === col) {
-        setSortAsc((a) => !a);
-        return col;
-      }
-      setSortAsc(true);
-      return col;
-    });
-  }, []);
-
-  const sensors = useSensors(
-    useSensor(PointerSensor, { activationConstraint: { distance: 5 } }),
-    useSensor(KeyboardSensor, { coordinateGetter: sortableKeyboardCoordinates })
-  );
-
-  const handleDragEnd = useCallback((event: DragEndEvent) => {
-    const { active, over } = event;
-    if (!over || active.id === over.id) return;
-    const keys = sortedJobs.map((j) => j.key);
-    const oldIndex = keys.indexOf(active.id as string);
-    const newIndex = keys.indexOf(over.id as string);
-    if (oldIndex === -1 || newIndex === -1) return;
-    const next = [...keys];
-    const [removed] = next.splice(oldIndex, 1);
-    next.splice(newIndex, 0, removed);
-    setManualOrder(next);
+  const jobsByPriority = useMemo(() => {
+    const groups: Record<PriorityLevel, JobRow[]> = { High: [], Medium: [], Low: [] };
+    for (const job of sortedJobs) {
+      const p = (job.priority ?? 'Medium') as PriorityLevel;
+      if (groups[p]) groups[p].push(job);
+    }
+    return groups;
   }, [sortedJobs]);
-
-  const Th = ({ column, label }: { column: SortColumn | null; label: string }) => (
-    <th
-      className="cursor-pointer select-none px-4 py-3 text-sm font-medium text-stone-700 dark:text-stone-300 hover:bg-stone-100 dark:hover:bg-stone-700/80"
-      onClick={() => column && handleSort(column)}
-    >
-      <div className="flex items-center gap-1">
-        {label}
-        {sortColumn === column && <span className="text-accent">{sortAsc ? '↑' : '↓'}</span>}
-      </div>
-    </th>
-  );
 
   if (!client) return null;
 
@@ -531,44 +453,36 @@ export function JobsTab({ clientId }: { clientId: string }) {
             </div>
           </div>
         ) : (
-          <div className="overflow-x-auto rounded-xl border border-stone-200 bg-white dark:border-stone-600 dark:bg-stone-800">
-            <DndContext sensors={sensors} onDragEnd={handleDragEnd}>
-              <table className="w-full min-w-[900px] text-left text-sm">
-                <thead>
-                  <tr className="border-b border-stone-200 bg-stone-50 dark:border-stone-600 dark:bg-stone-800/80">
-                    <th className="w-10 px-2 py-3" aria-label="Reorder" />
-                    <Th column="title" label="Title" />
-                    <Th column="description" label="Description" />
-                    <Th column="type" label="Primary Type" />
-                    <Th column="priority" label="Priority" />
-                    <Th column="metaJourney" label="Meta-Journey" />
-                    <Th column="journey" label="Journey" />
-                    <Th column="phase" label="Phase" />
-                    <Th column="struggles" label="Struggles" />
-                    <Th column="opportunities" label="Linked Opportunities" />
-                  </tr>
-                </thead>
-                <tbody>
-                  <SortableContext items={sortedJobs.map((j) => j.key)} strategy={verticalListSortingStrategy}>
-                    {sortedJobs.map((job) => (
-                      <SortableJobRow
+          <div className="space-y-8">
+            {(['High', 'Medium', 'Low'] as const).map((priority) => {
+              const list = jobsByPriority[priority];
+              if (list.length === 0) return null;
+              return (
+                <section key={priority}>
+                  <h2 className="mb-3 text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400">
+                    {priority.toUpperCase()} PRIORITY ({list.length})
+                  </h2>
+                  <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                    {list.map((job) => (
+                      <JobCard
                         key={job.key}
                         job={job}
-                        linked={getLinkedOpportunities(job.id)}
-                        tagStyle={jobTagStyle(job.tag)}
-                                                onRowClick={() => setDetailStack([{ type: 'job', id: job.id, mode: 'view' }])}
+                        journeyLabel={job.journeyNames?.[0] ?? ''}
+                        linkedOpportunities={getLinkedOpportunities(job.id)}
+                        priority={(job.priority ?? 'Medium') as PriorityLevel}
                         onOpportunityClick={(o) =>
                           setDetailStack([
                             { type: 'job', id: job.id, mode: 'view' },
                             { type: 'opportunity', id: o.id, mode: 'view' },
                           ])
                         }
+                        onClick={() => setDetailStack([{ type: 'job', id: job.id, mode: 'view' }])}
                       />
                     ))}
-                  </SortableContext>
-                </tbody>
-              </table>
-            </DndContext>
+                  </div>
+                </section>
+              );
+            })}
           </div>
         )}
       </div>
@@ -717,10 +631,10 @@ export function JobsTab({ clientId }: { clientId: string }) {
               const jobFormId = `edit-job-form-${entry.id}`;
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form={jobFormId} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form={jobFormId} className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -729,10 +643,10 @@ export function JobsTab({ clientId }: { clientId: string }) {
             if (entry.type === 'opportunity') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form="edit-opportunity-form" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form="edit-opportunity-form" className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -741,10 +655,10 @@ export function JobsTab({ clientId }: { clientId: string }) {
             if (entry.type === 'insight') {
               return (
                 <div className="flex gap-3">
-                  <button type="button" onClick={switchCurrentToView} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                  <button type="button" onClick={switchCurrentToView} className={`flex-1 ${modalButtonSecondary}`}>
                     Cancel
                   </button>
-                  <button type="submit" form="edit-insight-form-stack" className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                  <button type="submit" form="edit-insight-form-stack" className={`flex-1 ${modalButtonPrimary}`}>
                     Save
                   </button>
                 </div>
@@ -753,7 +667,7 @@ export function JobsTab({ clientId }: { clientId: string }) {
             return null;
           }
 
-          // View mode: always show Edit + Close (and Delete for job/insight) in the bottom bar
+          // View mode: consistent CTAs
           if (entry.type === 'job') {
             const job = allJobs.find((j) => j.id === entry.id) ?? jobs.find((j) => j.id === entry.id);
             return (
@@ -761,18 +675,18 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 <button
                   type="button"
                   onClick={() => setDeleteJobConfirm({ id: entry.id, name: job?.name ?? 'this job' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }}
-                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  className={`flex-1 ${modalButtonSecondary}`}
                 >
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>
@@ -785,14 +699,15 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 <button
                   type="button"
                   onClick={() => setDeleteOpportunityConfirm({ id: entry.id, name: opp?.name ?? 'this opportunity' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
-                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }} className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700">
+                <button type="button" onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }} className={`flex-1 ${modalButtonSecondary}`}>
+>>>>>>> 8050142 (Modal and UI polish: left-align titles, reduce radius, readability, remove duplicates)
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>
@@ -805,18 +720,18 @@ export function JobsTab({ clientId }: { clientId: string }) {
                 <button
                   type="button"
                   onClick={() => setDeleteInsightConfirm({ id: entry.id, name: insight?.title ?? 'this insight' })}
-                  className="rounded-xl border border-red-200 px-4 py-2.5 font-medium text-red-600 hover:bg-red-50 dark:border-red-900/50 dark:text-red-400 dark:hover:bg-red-900/20"
+                  className={modalButtonDanger}
                 >
                   Delete
                 </button>
                 <button
                   type="button"
                   onClick={(e) => { e.preventDefault(); e.stopPropagation(); switchCurrentToEdit(); }}
-                  className="flex-1 rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
+                  className={`flex-1 ${modalButtonSecondary}`}
                 >
                   Edit
                 </button>
-                <button type="button" onClick={onClose} className="flex-1 rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover">
+                <button type="button" onClick={onClose} className={`flex-1 ${modalButtonPrimary}`}>
                   Close
                 </button>
               </div>

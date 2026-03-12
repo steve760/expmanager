@@ -6,6 +6,7 @@ import { signInWithPassword } from '@/lib/auth';
 export function SignInPage() {
   const setSignedIn = useStore((s) => s.setSignedIn);
   const initAuth = useStore((s) => s.initAuth);
+  const loadState = useStore((s) => s.loadState);
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
@@ -41,6 +42,7 @@ export function SignInPage() {
       return;
     }
     setSignedIn(true);
+    await loadState();
   };
 
   return (

@@ -27,7 +27,7 @@ export function ModalLabel({
 
 export function ModalSectionLabel({ children, className = '' }: { children: ReactNode; className?: string }) {
   return (
-    <div className={`mb-0.5 text-[11px] font-medium text-stone-400 dark:text-stone-500 ${className}`}>
+    <div className={`mb-2 text-xs font-medium uppercase tracking-wider text-stone-500 dark:text-stone-400 ${className}`}>
       {children}
     </div>
   );
@@ -42,6 +42,9 @@ export function SectionTitle({ children }: { children: ReactNode }) {
   );
 }
 
+/** Read-only value text: comfortable line-height and colour for body copy. */
+export const VALUE_CLASS = 'text-sm leading-relaxed text-stone-700 dark:text-stone-300';
+
 export function ViewOnlySection({
   title,
   children,
@@ -52,9 +55,11 @@ export function ViewOnlySection({
   className?: string;
 }) {
   return (
-    <div className={`rounded-xl border border-stone-200/80 bg-stone-50 px-4 py-3.5 dark:border-stone-700 dark:bg-stone-800/50 ${className}`}>
-      <SectionTitle>{title}</SectionTitle>
+    <section className={className}>
+      <h3 className="mb-3 text-base font-semibold tracking-tight text-stone-900 dark:text-stone-100">
+        {title}
+      </h3>
       {children}
-    </div>
+    </section>
   );
 }

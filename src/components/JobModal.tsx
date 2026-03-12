@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Modal } from '@/components/ui/Modal';
+import { modalButtonPrimary, modalButtonSecondary } from '@/components/ui/Modal';
 import { ModalSectionLabel, ModalLabel } from '@/components/ui/ModalLabel';
 import type { PriorityLevel } from '@/types';
 
@@ -113,18 +114,10 @@ export function JobModal({ isOpen, onClose, job, jobIndex, insights = [], onSave
   const formId = formIdProp ?? 'job-edit-form';
   const footer = !hideFooter ? (
     <div className="flex flex-wrap gap-3 justify-end">
-      <button
-        type="button"
-        onClick={onClose}
-        className="rounded-xl border border-stone-300 px-4 py-2.5 font-medium text-stone-700 hover:bg-stone-50 dark:border-stone-600 dark:text-stone-200 dark:hover:bg-stone-700"
-      >
+      <button type="button" onClick={onClose} className={modalButtonSecondary}>
         Cancel
       </button>
-      <button
-        type="submit"
-        form={formId}
-        className="rounded-xl bg-accent px-4 py-2.5 font-medium text-white hover:bg-accent-hover"
-      >
+      <button type="submit" form={formId} className={modalButtonPrimary}>
         Save
       </button>
     </div>
