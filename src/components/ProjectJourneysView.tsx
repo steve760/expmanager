@@ -49,7 +49,7 @@ export function ProjectJourneysView() {
           Add journey
         </button>
       </div>
-      <div className="grid grid-cols-2 gap-4 md:grid-cols-3 xl:grid-cols-4">
+      <div className="flex flex-wrap gap-4">
         {projectJourneys.map((journey) => {
           const journeyPhases = phases.filter((p) => p.journeyId === journey.id);
           const phaseCount = journeyPhases.length;
@@ -68,7 +68,7 @@ export function ProjectJourneysView() {
           return (
             <div
               key={journey.id}
-              className="group relative rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
+              className="group relative min-w-[260px] max-w-[400px] flex-1 rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated hover:shadow-accent/5 dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
             >
               <button
                 onClick={() => setSelection(client.id, project.id, journey.id)}
