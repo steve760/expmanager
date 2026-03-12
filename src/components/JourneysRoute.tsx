@@ -173,7 +173,7 @@ export function JourneysRoute() {
                       {(metaHealth !== null || projJourneys.length > 0) && (
                         <div className="w-px shrink-0 self-stretch bg-stone-200 dark:bg-stone-600" aria-hidden />
                       )}
-                      <div className="flex min-w-0 flex-1 flex-col gap-3 pl-4">
+                      <div className="flex min-w-0 flex-1 flex-wrap gap-3 pl-4">
                         {projJourneys.length === 0 ? (
                           <button
                             onClick={() => setSelection(client.id, project.id, null)}
@@ -201,7 +201,7 @@ export function JourneysRoute() {
                               <button
                                 key={journey.id}
                                 onClick={() => navigate(`/clients/${client.id}/journeys/${journey.id}`)}
-                                className="min-w-0 w-full rounded-xl border border-stone-200 bg-white p-4 text-left shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
+                                className="min-w-[220px] max-w-[360px] flex-1 rounded-xl border border-stone-200 bg-white p-4 text-left shadow-soft transition-all hover:border-accent/20 hover:shadow-elevated dark:border-stone-600 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
                               >
                                 <h4 className="break-words font-medium text-stone-900 dark:text-stone-100">{journey.name}</h4>
                                 {journey.description && (
@@ -262,7 +262,7 @@ export function JourneysRoute() {
                   </button>
                 </div>
               ) : (
-                <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-2 xl:grid-cols-3">
+                <div className="flex flex-wrap gap-4">
                   {projectJourneys.map((journey) => {
                     const jPhases = phases.filter((p) => p.journeyId === journey.id);
                     const avgHealth =
@@ -283,7 +283,7 @@ export function JourneysRoute() {
                     return (
                       <div
                         key={journey.id}
-                        className="group relative rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
+                        className="group relative min-w-[260px] max-w-[400px] flex-1 rounded-2xl border border-stone-200/80 bg-white shadow-soft transition-all duration-200 hover:-translate-y-0.5 hover:border-accent/20 hover:shadow-elevated dark:border-stone-600/80 dark:bg-stone-800 dark:hover:border-[#361D60]/25 dark:hover:shadow-elevated-dark"
                       >
                         <button
                           onClick={() => navigate(`/clients/${client.id}/journeys/${journey.id}`)}

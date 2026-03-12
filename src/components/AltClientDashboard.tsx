@@ -283,13 +283,13 @@ export function AltClientDashboard() {
                         </div>
                       )}
                     </button>
-                    <div className="mt-3 grid grid-cols-2 gap-2 sm:grid-cols-3 xl:grid-cols-4">
+                    <div className="mt-3 flex flex-wrap gap-2">
                       {projectJourneys.map((j) => (
                         <button
                           key={j.id}
                           type="button"
                           onClick={() => { if (client) navigate(`/clients/${client.id}/journeys/${j.id}`); }}
-                          className="rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25 text-left"
+                          className="shrink-0 rounded-full bg-accent/15 px-2.5 py-0.5 text-xs font-medium text-accent transition-colors hover:bg-accent/25 dark:bg-[#361D60]/15 dark:text-accent-light dark:hover:bg-[#361D60]/25"
                         >
                           {j.name}
                         </button>
