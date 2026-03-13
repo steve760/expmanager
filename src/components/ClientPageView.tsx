@@ -195,42 +195,54 @@ export function ClientPageView() {
                           key={project.id}
                           className="w-full max-w-full rounded-2xl border border-stone-200 bg-white shadow-soft dark:border-stone-600 dark:bg-stone-800"
                         >
-                          <div className="flex flex-col p-6">
-                            {/* Project block: title, description, health */}
-                            <div className="flex items-start justify-between gap-2">
-                              <button
-                                onClick={() => setSelection(client.id, project.id, null)}
-                                className="min-w-0 flex-1 text-left"
-                              >
-                                <h3 className="break-words font-semibold text-stone-900 transition-colors hover:text-accent dark:text-stone-100 dark:hover:text-accent-light">{project.name}</h3>
-                                {project.description && (
-                                  <p className="mt-1 break-words text-sm text-stone-500 dark:text-stone-300">
-                                    {project.description}
-                                  </p>
-                                )}
-                              </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setDeleteConfirm({ type: 'project', id: project.id, name: project.name });
-                                }}
-                                className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 dark:hover:text-red-400"
-                                aria-label="Delete Meta-Journey"
-                              >
-                                <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
-                                </svg>
-                              </button>
-                            </div>
-                            {metaHealth !== null && (
-                              <div className="mt-4 w-full" title="Average health of journeys in this Meta-Journey">
-                                <PhaseHealthBar pct={metaHealth} />
+                          <div className="flex items-start gap-0 p-6">
+                            {/* Left: Meta-Journey title, description, health */}
+                            <div className="flex min-w-0 flex-1 flex-col pr-4">
+                              <div className="flex items-start justify-between gap-2">
+                                <button
+                                  onClick={() => setSelection(client.id, project.id, null)}
+                                  className="min-w-0 flex-1 text-left"
+                                >
+                                  <h3 className="break-words font-semibold text-stone-900 transition-colors hover:text-accent dark:text-stone-100 dark:hover:text-accent-light">{project.name}</h3>
+                                  {project.description && (
+                                    <p className="mt-1 break-words text-sm text-stone-500 dark:text-stone-300">
+                                      {project.description}
+                                    </p>
+                                  )}
+                                </button>
+                                <button
+                                  onClick={(e) => {
+                                    e.stopPropagation();
+                                    setDeleteConfirm({ type: 'project', id: project.id, name: project.name });
+                                  }}
+                                  className="shrink-0 rounded-lg p-2 text-stone-400 hover:bg-red-50 hover:text-red-500 dark:hover:bg-red-900/30 dark:hover:text-red-400"
+                                  aria-label="Delete Meta-Journey"
+                                >
+                                  <svg className="h-5 w-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16" />
+                                  </svg>
+                                </button>
                               </div>
+                              {metaHealth !== null && (
+                                <div className="mt-4 w-full" title="Average health of journeys in this Meta-Journey">
+                                  <PhaseHealthBar pct={metaHealth} />
+                                </div>
+                              )}
+                            </div>
+                            {(metaHealth !== null || projJourneys.length > 0) && (
+                              <div className="w-px shrink-0 self-stretch bg-stone-200 dark:bg-stone-600" aria-hidden />
                             )}
-                            {/* Journey cards: full-width row so they lay out horizontally */}
-                            {projJourneys.length > 0 && (
-                              <div className="mt-4 flex w-full flex-wrap gap-3 border-t border-stone-200 pt-4 dark:border-stone-600">
-                                {projJourneys.map((journey) => {
+                            {/* Right: journey cards in a horizontal row (min-width so two cards fit) */}
+                            <div className="flex min-w-[480px] flex-1 flex-wrap gap-3 pl-4">
+                              {projJourneys.length === 0 ? (
+                                <button
+                                  onClick={() => setSelection(client.id, project.id, null)}
+                                  className="w-full min-w-0 rounded-xl border border-dashed border-stone-200 bg-stone-50/50 py-8 text-center text-sm text-stone-500 transition-colors hover:border-accent/30 hover:bg-accent/5 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-400 dark:hover:border-[#361D60]/30 dark:hover:bg-[#361D60]/10"
+                                >
+                                  No journeys. Click to add journeys.
+                                </button>
+                              ) : (
+                                projJourneys.map((journey) => {
                                   const jPhases = phases.filter((p) => p.journeyId === journey.id);
                                   const avgHealth =
                                     jPhases.length > 0
@@ -285,17 +297,9 @@ export function ClientPageView() {
                                       </div>
                                     </button>
                                   );
-                                })}
-                              </div>
-                            )}
-                            {projJourneys.length === 0 && (
-                              <button
-                                onClick={() => setSelection(client.id, project.id, null)}
-                                className="mt-4 rounded-xl border border-dashed border-stone-200 bg-stone-50/50 py-8 w-full text-center text-sm text-stone-500 transition-colors hover:border-accent/30 hover:bg-accent/5 dark:border-stone-600 dark:bg-stone-800/50 dark:text-stone-400 dark:hover:border-[#361D60]/30 dark:hover:bg-[#361D60]/10"
-                              >
-                                No journeys. Click to add journeys.
-                              </button>
-                            )}
+                                })
+                              )}
+                            </div>
                           </div>
                         </div>
                       );
