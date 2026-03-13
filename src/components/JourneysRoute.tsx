@@ -100,7 +100,7 @@ export function JourneysRoute() {
               </div>
             </div>
           ) : (
-            <div className="flex max-w-2xl flex-col gap-6">
+            <div className="flex max-w-5xl flex-col gap-6">
               <div className="flex items-center justify-between">
                 <h2 className="text-xl font-bold tracking-tight text-stone-900 dark:text-stone-100">Meta-Journeys</h2>
                 <button

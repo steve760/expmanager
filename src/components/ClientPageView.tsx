@@ -167,7 +167,7 @@ export function ClientPageView() {
                     </div>
                   </div>
                 ) : (
-                  <div className="flex max-w-2xl flex-col gap-6">
+                  <div className="flex max-w-5xl flex-col gap-6">
                     {clientProjects.map((project) => {
                       const projJourneys = journeys.filter((j) => j.projectId === project.id);
                       const journeyHealths = projJourneys
